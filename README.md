@@ -52,12 +52,11 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 **Issue: Reader roles assigned but user had no access**
 
-Assigned a test user Reader roles in both Entra ID and at the Azure subscription level, but on logging in as that user, they couldn't see any existing resources — Azure even prompted them to start a new free trial, as if the account had no relationship to the existing subscription at all.
+Assigned the test user (L1) Reader roles in both Entra ID and at the Azure subscription level, but on logging in as L1, I couldn't see any existing resources — Azure even prompted me to start a new free trial, as if the account had no relationship to the existing subscription at all.
 
-Investigated by checking the role assignments directly and found both roles had been created as **Eligible** rather than **Active** — a PIM (Privileged Identity Management) setting. An Eligible assignment means the user is permitted to hold the role, but it isn't actually in effect until they manually activate it themselves; nothing had been activated, so the user genuinely had no access at all, despite the assignment technically existing.
+Investigated by checking the role assignments directly and found both roles had been created as **Eligible** rather than **Active** — a PIM (Privileged Identity Management) setting. An Eligible assignment means the account is permitted to hold the role, but it isn't actually in effect until manually activated; nothing had been activated, so L1 genuinely had no access at all, despite the assignment technically existing.
 
-Resolved by removing both eligible assignments and reassigning them as Active, which took effect immediately and was confirmed by successfully logging in as the user and seeing the existing VM. This was a useful hands-on demonstration of a real PIM concept — access isn't standing by default, it must be deliberately granted or activated — rather than just a lab misconfiguration to fix and move past.
-
+Resolved by removing both eligible assignments and reassigning them as Active, which took effect immediately and was confirmed by logging in as L1 and successfully seeing the existing VM. This was a useful hands-on demonstration of a real PIM concept — access isn't standing by default, it must be deliberately granted or activated — rather than just a lab misconfiguration to fix and move past.
 ## Business Outcome
 
 [Placeholder — to be completed once Conditional Access/MFA/PIM sections are built out.]
