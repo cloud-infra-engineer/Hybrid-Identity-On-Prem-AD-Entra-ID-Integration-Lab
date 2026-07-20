@@ -38,6 +38,10 @@ This project focuses on establishing hybrid identity synchronisation between on-
 
 **Verification:** Confirmed this worked correctly through three layers of proof, not just one:
 
+![L1 signed in as synced user](L1%20sign%20in.png)
+![VM visible but not running — Reader access confirmed](vm%20not%20running.png)
+![Failed authorisation — L1 blocked from starting the VM](Failed%20authorisation.png)
+
 1. **Sync** — users created directly in on-premises AD appeared automatically in both Entra ID and Azure, with no manual creation required in the cloud.
 2. **Authentication** — logged in as one of these synced users via the `.onmicrosoft.com` UPN (per the domain caveat above) using the exact password set on-premises, and the login was accepted — confirming the password hash had synced correctly and could authenticate against Entra ID.
 3. **Authorization** — assigned the user a Reader role in both Entra ID and Azure, then tested the boundary of that permission two ways: positively, by confirming the user could view users and subscriptions as expected; and negatively, by attempting to create a virtual machine, which was correctly blocked as an action Reader-level access doesn't permit. This negative test is the stronger proof — it confirms the permission boundary was genuinely enforced, not just that some access existed.
