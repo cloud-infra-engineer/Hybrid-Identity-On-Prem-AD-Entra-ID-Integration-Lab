@@ -36,7 +36,13 @@ This project focuses on establishing hybrid identity synchronisation between on-
 
 **A caveat worth naming:** this only works cleanly when the on-premises domain matches a verified domain in the Entra ID tenant. In this lab, the on-prem domain (`contoso.com`) doesn't match the tenant's original sign-up domain, so Entra Connect falls back to mapping synced users to the tenant's default `.onmicrosoft.com` domain instead. In a real enterprise deployment, the on-prem domain would typically be a verified, owned domain matching the cloud tenant, allowing a fully consistent sign-in experience across both environments.
 
-**Verification:** Took the username and password created directly in on-premises AD, and used it — via the `.onmicrosoft.com` UPN mapping described above — to sign in to both Entra ID and Azure. Assigned Reader-level roles to the account in both environments to confirm not just authentication (proving the identity and password were valid) but also authorization (confirming the account could be granted, and was correctly restricted to, only the specific access assigned to it). This confirms Password Hash Synchronization is working end-to-end: one on-premises identity, successfully authenticating and being authorized into cloud resources.
+**Verification:** Confirmed this worked correctly through three layers of proof, not just one:
+
+1. **Sync** — users created directly in on-premises AD appeared automatically in both Entra ID and Azure, with no manual creation required in the cloud.
+2. **Authentication** — logged in as one of these synced users via the `.onmicrosoft.com` UPN (per the domain caveat above) using the exact password set on-premises, and the login was accepted — confirming the password hash had synced correctly and could authenticate against Entra ID.
+3. **Authorization** — assigned the user a Reader role in both Entra ID and Azure, then tested the boundary of that permission two ways: positively, by confirming the user could view users and subscriptions as expected; and negatively, by attempting to create a virtual machine, which was correctly blocked as an action Reader-level access doesn't permit. This negative test is the stronger proof — it confirms the permission boundary was genuinely enforced, not just that some access existed.
+
+Together, these three layers confirm Password Hash Synchronization works end-to-end: a single on-premises identity, successfully synced, authenticated, and correctly authorized into cloud resources.
 
 ## Troubleshooting & Problems I Hit
 
