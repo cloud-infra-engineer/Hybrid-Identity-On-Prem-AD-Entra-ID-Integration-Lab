@@ -28,6 +28,16 @@ This project focuses on establishing hybrid identity synchronisation between on-
 
 *(Conditional Access, MFA, and PIM sections to be added as the lab progresses.)*
 
+## Password Hash Synchronization (PHS)
+
+**Business case:** Without hybrid identity, an employee would need separate credentials for on-premises resources and cloud/SaaS applications — one username and password to log into their on-prem-connected systems, and a completely different one for cloud apps like Microsoft 365 or other SaaS tools. This creates a worse user experience, more passwords to manage and forget, and more accounts for IT to secure. Password Hash Synchronization solves this by allowing an employee to use the same on-premises username and password to authenticate into cloud resources — a single identity, working consistently across both environments.
+
+**What was built:** Configured Entra Connect to synchronise on-premises Active Directory with Entra ID, with Password Hash Synchronization enabled. This requires Entra Connect specifically — PHS is a feature of the sync process itself, not something configured independently.
+
+**A caveat worth naming:** this only works cleanly when the on-premises domain matches a verified domain in the Entra ID tenant. In this lab, the on-prem domain (`contoso.com`) doesn't match the tenant's original sign-up domain, so Entra Connect falls back to mapping synced users to the tenant's default `.onmicrosoft.com` domain instead. In a real enterprise deployment, the on-prem domain would typically be a verified, owned domain matching the cloud tenant, allowing a fully consistent sign-in experience across both environments.
+
+**Verification:** Took the username and password created directly in on-premises AD, and used it — via the `.onmicrosoft.com` UPN mapping described above — to sign in to both Entra ID and Azure. Assigned Reader-level roles to the account in both environments to confirm not just authentication (proving the identity and password were valid) but also authorization (confirming the account could be granted, and was correctly restricted to, only the specific access assigned to it). This confirms Password Hash Synchronization is working end-to-end: one on-premises identity, successfully authenticating and being authorized into cloud resources.
+
 ## Troubleshooting & Problems I Hit
 
 [Placeholder — log issues as you hit them, same as the IGA lab.]
