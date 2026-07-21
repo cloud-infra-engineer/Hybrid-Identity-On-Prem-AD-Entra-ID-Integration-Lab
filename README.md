@@ -93,6 +93,8 @@ Resolved by removing both eligible assignments and reassigning them as Active, w
 
 ## References
 
+*Note: the information above reflects Microsoft's documentation and product behaviour at the time this project was built. Microsoft Entra and Azure features are updated frequently, so some specifics may have changed since — the underlying identity and access management concepts, however, remain the core focus of this project.*
+
 Key Microsoft documentation used to verify technical claims in this project:
 
 - [Active Directory Domain Services Overview](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/active-directory-domain-services-overview)
