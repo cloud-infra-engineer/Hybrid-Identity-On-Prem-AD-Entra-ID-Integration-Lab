@@ -22,7 +22,9 @@ This project focuses on establishing hybrid identity synchronisation between on-
 
 **AD DS Setup:** [Placeholder — describe what you configured: domain name, VM setup, promoting the server to a domain controller.]
 
-**Entra Connect / Cloud Sync Configuration:** [Placeholder — describe how you connected on-prem AD to Entra ID.]
+**Entra Connect Configuration:** Downloaded the Entra Connect agent directly from the Microsoft Download Center onto the domain controller VM, then configured synchronisation through the Entra Connect configuration wizard. Confirmed the configuration completed successfully by checking Entra ID afterward and verifying that users synced correctly — covered in detail in the Sync Verification section below.
+
+**Design consideration — Entra Connect vs. Cloud Sync:** Choosing between the traditional Entra Connect sync engine and the newer Cloud Sync agent-based approach is a genuine trade-off, not a fixed right answer. Entra Connect was used in this project specifically because it supports capabilities Cloud Sync doesn't: full configuration of Pass-Through Authentication (not available in Cloud Sync), granular Password Writeback configuration, and support for multiple forests within a single domain setup. Cloud Sync, by contrast, is lighter-weight and supports multiple agents for higher availability, making it a better fit for simpler environments that don't need this level of configurability. The right choice depends on the specific organisation's complexity and requirements — consistent with the broader theme running through this project: identity and access management decisions are rarely universally "correct," they're trade-offs weighed against a specific business context.
 
 **Sync Verification:** Confirmed that user accounts created directly in on-premises AD DS synchronised successfully to Entra ID — verified by checking Entra ID's Users list and confirming the same accounts appear there automatically, without manual creation in the cloud.
 
