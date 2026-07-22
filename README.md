@@ -16,7 +16,24 @@ This project focuses on establishing hybrid identity synchronisation between on-
 
 ## Architecture
 
-![Architecture Diagram](hybrid-ad-entra-architecture.png)
+graph TD
+    subgraph Azure VNet
+        subgraph Subnet with NSG
+            VM[Azure VM<br>• Windows Server<br>• Active Directory DS<br>• Entra Connect Sync]
+        end
+    end
+
+    subgraph Microsoft Cloud
+        Entra[Microsoft Entra ID]
+        MFA[Multi-Factor Authentication]
+        CA[Conditional Access]
+        SSO[Single Sign-On]
+    end
+
+    VM -->|Syncs Identities| Entra
+    Entra --> MFA
+    Entra --> CA
+    Entra --> SSO
 
 ## What I Built
 
