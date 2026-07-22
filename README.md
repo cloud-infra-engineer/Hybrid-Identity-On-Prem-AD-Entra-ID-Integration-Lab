@@ -109,6 +109,7 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 **Verified finding — licensing is a compliance requirement, not a technical gate:** Tested SSPR successfully on a user without a Microsoft Entra P2 license assigned. Microsoft's general licensing documentation states unlicensed users "may technically be able to access SSPR," though "a license is required for any user that you intend to benefit from the service" — a compliance/entitlement requirement, not a technical enforcement mechanism. This was directly confirmed against Microsoft's own official SC-300 training lab for this exact exercise, which contains no licensing step at all.
 
 **Verified finding — administrator accounts use a separate, legacy SSPR system:** Attempting SSPR on an account holding an administrator role can fail with "password reset isn't turned on for your account," even when SSPR is correctly enabled for all standard users. This is a documented, specific behaviour — administrator accounts use a separate legacy configuration (SSPR-A) distinct from the standard user SSPR settings (SSPR-U) managed through the normal Entra admin center screen, and enabling SSPR for "All users" does not extend to administrator roles.
+
 ## Troubleshooting & Problems I Hit
 
 **Issue: Reader roles assigned but user had no access**
@@ -118,6 +119,17 @@ Assigned the test user (L1) Reader roles in both Entra ID and at the Azure subsc
 Investigated by checking the role assignments directly and found both roles had been created as **Eligible** rather than **Active** — a PIM (Privileged Identity Management) setting. An Eligible assignment means the account is permitted to hold the role, but it isn't actually in effect until manually activated; nothing had been activated, so L1 genuinely had no access at all, despite the assignment technically existing.
 
 Resolved by removing both eligible assignments and reassigning them as Active, which took effect immediately and was confirmed by logging in as L1 and successfully seeing the existing VM. This was a useful hands-on demonstration of a real PIM concept — access isn't standing by default, it must be deliberately granted or activated — rather than just a lab misconfiguration to fix and move past.
+
+**Issue: SSPR failed with "password reset isn't turned on for your account"**
+
+Attempted SSPR on a standard test user account and received the error: "You can't reset your own password because password reset isn't turned on for your account." The cause was straightforward — SSPR simply hadn't been correctly enabled/saved for that user at that point. Resolved by properly enabling password reset for the user and re-attempting.
+
+**Issue: MFA verification code not received during SSPR**
+
+While completing SSPR, was prompted to enter a verification code but received no push notification on the authenticator app. Checked mysignins.microsoft.com and confirmed the authenticator app registration appeared correctly listed and matched to the correct device, but push notifications still weren't arriving. Resolved by deleting the existing authenticator app registration entirely and re-authenticating from scratch — after which push notifications worked and the password reset completed successfully.
+
+The precise root cause wasn't definitively confirmed. One possibility considered: MFA had originally been set up separately, before the SSPR process was configured, rather than both being done together in one continuous flow — it's possible this sequencing left the registration in an inconsistent state that only cleared once the method was removed and re-registered. This wasn't conclusively established, only that removing and re-registering resolved the issue.
+
 ## Business Outcome
 
 [Placeholder — to be completed once Conditional Access/MFA/PIM sections are built out.]
@@ -133,6 +145,18 @@ Key Microsoft documentation used to verify technical claims in this project:
 - [Password Policy Overview and FAQ](https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-password-policy-overview-frequently-asked-questions)
 - [On-premises Password Writeback with SSPR](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-sspr-writeback)
 - [Pass-Through Authentication FAQ](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-pta-faq)
+- ## References (MFA & SSPR)
+
+- [Configure Security Defaults for Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/fundamentals/security-defaults)
+- [Enable Microsoft Entra Self-Service Password Reset](https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-enable-sspr)
+- [Enable Microsoft Entra Password Writeback](https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-enable-sspr-writeback)
+- [Self-Service Password Reset Licensing](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-sspr-licensing)
+- [Self-Service Password Reset Deep Dive](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-sspr-howitworks)
+- [Troubleshoot Self-Service Password Reset](https://learn.microsoft.com/en-us/entra/identity/authentication/troubleshoot-sspr)
+- [Password Policy Overview and FAQ](https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-password-policy-overview-frequently-asked-questions)
+- [Security Questions Authentication Method (Retirement Notice, March 2027)](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-authentication-security-questions)
+- [Microsoft Entra Administrators Can't Reset Their Own Password from Cloud (SSPR-A vs SSPR-U)](https://learn.microsoft.com/en-us/troubleshoot/entra/entra-id/user-prov-sync/password-writeback-error-code-sspr-009)
+- [SC-300 Official Lab: Configure and Deploy Self-Service Password Reset](https://microsoftlearning.github.io/SC-300-Identity-and-Access-Administrator/Instructions/Labs/Lab_09_ConfigureAndDeploySelfServicePasswordReset.html)
 
 *Note: the information above reflects Microsoft's documentation and product behaviour at the time this project was built. Microsoft Entra and Azure features are updated frequently, so some specifics may have changed since — the underlying identity and access management concepts, however, remain the core focus of this project.*
 
