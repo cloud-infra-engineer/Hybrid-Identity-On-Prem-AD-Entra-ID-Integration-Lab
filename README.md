@@ -16,25 +16,6 @@ This project focuses on establishing hybrid identity synchronisation between on-
 
 ## Architecture
 
-graph TD
-    subgraph Azure VNet
-        subgraph Subnet with NSG
-            VM[Azure VM<br>• Windows Server<br>• Active Directory DS<br>• Entra Connect Sync]
-        end
-    end
-
-    subgraph Microsoft Cloud
-        Entra[Microsoft Entra ID]
-        MFA[Multi-Factor Authentication]
-        CA[Conditional Access]
-        SSO[Single Sign-On]
-    end
-
-    VM -->|Syncs Identities| Entra
-    Entra --> MFA
-    Entra --> CA
-    Entra --> SSO
-
 ## What I Built
 
 **AD DS Setup:** Deployed a Windows Server 2025 VM in Azure to act as the on-premises domain controller — a practical lab substitute for physical on-prem hardware, achieving the same result. Promoted the server to a domain controller through the standard AD DS configuration process. Used `contoso.com` as the domain name — a reserved domain Microsoft specifically allows for lab and testing purposes, and the convention used throughout most of Microsoft's own documentation and training material. In a real enterprise deployment, an organisation would use its own owned and verified domain instead; `contoso.com` was used here since a custom domain wasn't available for this lab. Created users and groups within the new domain to represent a working directory structure, ready to be synchronised to the cloud.
@@ -96,6 +77,20 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 **A limitation worth noting:** the two policies can be aligned but never made fully identical — Entra ID always applies some cloud-specific protections (such as the global banned password list) that aren't configurable to match on-prem's specific rules, layering additional protection on top of an aligned baseline rather than replacing it.
 
 **Takeaway:** good hybrid identity governance means treating password policy as a single, deliberately-aligned standard across both environments — not two independently-drifting policies that happen to coexist.
+
+## Multi-Factor Authentication (MFA)
+
+**Business case:** A password alone is a single point of failure — if it's phished, reused from a breached site, or guessed, an attacker has everything they need to access the account. MFA closes this gap by requiring a second, independent form of proof beyond the password — something the user has (an authenticator app, a FIDO2 key) or something they are (biometrics) — so a stolen password on its own is no longer sufficient to gain access. This significantly reduces successful account compromise, since the majority of real-world attacks rely on a stolen or guessed password working in isolation.
+
+**What was built:** Configured MFA for test users using the Microsoft Authenticator app with number matching (rather than simple push approval), which specifically defends against MFA fatigue attacks — where an attacker who already has a valid password bombards the user with repeated approval prompts hoping they'll accept one out of frustration. Number matching requires the user to actively read and enter a number shown on screen, defeating that specific technique.
+
+**Design consideration — MFA strength should scale with risk:** Not all MFA methods offer equal protection. SMS and voice codes are convenient but vulnerable to interception and SIM-swapping. Authenticator app push/number matching is stronger. Phishing-resistant methods (FIDO2 security keys, Windows Hello for Business) are the strongest, since they're cryptographically bound to the specific device and can't be tricked by a fake login page. A sensible design applies a baseline method (authenticator app) organisation-wide, while reserving phishing-resistant methods specifically for higher-risk actions — such as activating a privileged role via PIM — since the consequence of a compromised privileged account is far greater than a standard user account.
+
+**A note on residual risk:** MFA dramatically reduces — but does not eliminate — account compromise risk. No single control, or combination of controls, removes risk entirely; layered controls (password, MFA, phishing-resistant methods for privileged access) each raise the cost and difficulty for an attacker, reducing risk to an acceptable, managed level rather than to zero. Against a highly resourced, persistent attacker, no configuration guarantees prevention — the realistic goal of any control is risk reduction, not risk elimination.
+
+![MFA registration prompt on first sign-in](mfa-registration-prompt.png)
+
+![MFA successfully registered — Microsoft Authenticator set as default sign-in method](mfa-registration-confirmed.png)
 
 ## Troubleshooting & Problems I Hit
 
