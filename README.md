@@ -96,6 +96,12 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 **Business case:** Without SSPR, a forgotten or locked-out password requires helpdesk involvement — a real problem for anyone working outside normal support hours (e.g., 2am), who would otherwise be completely blocked until the helpdesk reopens. SSPR solves this by letting users verify their own identity and reset their password themselves, at any time, without waiting for IT — reducing both user downtime and helpdesk ticket volume for what is typically one of the most common, repetitive support requests.
 
+![SSPR: Get back into your account, CAPTCHA verification step](sspr-captcha-verification.png)
+
+![SSPR: Choose verification method and enter code from Authenticator app](sspr-verification-method.png)
+
+![SSPR: Choose a new password](sspr-choose-new-password.png)
+
 **A security consideration — verification method matters:** SSPR is only as secure as the method used to verify the user really is who they claim to be. Security questions were historically an option, but Microsoft is retiring them for SSPR in March 2027, explicitly because they're "often guessable or susceptible to social engineering, increasing the risk of account takeover during SSPR." This is exactly why the lab registers MFA as part of the SSPR setup process, rather than as a separate step — a self-service reset is only safe if the verification behind it is genuinely strong, since SSPR is, by definition, an unattended process with no human at the helpdesk double-checking the requester's identity.
 
 **Hybrid environments and password policy conflict:** In a hybrid setup, a password reset via SSPR must satisfy both Entra ID's cloud policy and on-premises AD's policy (where writeback is enabled) — if it fails either, the reset fails and the user must fall back to a helpdesk-driven, on-premises reset instead. This creates a genuine design choice for organisations that want a single, unambiguous password policy: rather than running both cloud and on-prem policies side by side, an organisation could choose to disable SSPR and password reset in the cloud entirely, forcing all resets through on-premises AD. This keeps the identity lifecycle strictly single-sourced (matching the "AD as sole source of truth" principle established earlier in this project), at the cost of losing the convenience and reduced helpdesk load SSPR provides.
@@ -103,7 +109,6 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 **Verified finding — licensing is a compliance requirement, not a technical gate:** Tested SSPR successfully on a user without a Microsoft Entra P2 license assigned. Microsoft's general licensing documentation states unlicensed users "may technically be able to access SSPR," though "a license is required for any user that you intend to benefit from the service" — a compliance/entitlement requirement, not a technical enforcement mechanism. This was directly confirmed against Microsoft's own official SC-300 training lab for this exact exercise, which contains no licensing step at all.
 
 **Verified finding — administrator accounts use a separate, legacy SSPR system:** Attempting SSPR on an account holding an administrator role can fail with "password reset isn't turned on for your account," even when SSPR is correctly enabled for all standard users. This is a documented, specific behaviour — administrator accounts use a separate legacy configuration (SSPR-A) distinct from the standard user SSPR settings (SSPR-U) managed through the normal Entra admin center screen, and enabling SSPR for "All users" does not extend to administrator roles.
-
 ## Troubleshooting & Problems I Hit
 
 **Issue: Reader roles assigned but user had no access**
