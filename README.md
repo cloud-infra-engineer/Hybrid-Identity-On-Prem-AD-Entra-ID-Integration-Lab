@@ -16,7 +16,7 @@ This project focuses on establishing hybrid identity synchronisation between on-
 
 ## Architecture
 
-(![Architecture Diagram](hybrid-lab-architecture.png))
+![Architecture Diagram](hybrid-lab-architecture.png)
 
 ## What I Built
 
