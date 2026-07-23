@@ -16,6 +16,8 @@ This project focuses on establishing hybrid identity synchronisation between on-
 
 ## Architecture
 
+(![Architecture Diagram](hybrid-lab-architecture.png))
+
 ## What I Built
 
 **AD DS Setup:** Deployed a Windows Server 2025 VM in Azure to act as the on-premises domain controller — a practical lab substitute for physical on-prem hardware, achieving the same result. Promoted the server to a domain controller through the standard AD DS configuration process. Used `contoso.com` as the domain name — a reserved domain Microsoft specifically allows for lab and testing purposes, and the convention used throughout most of Microsoft's own documentation and training material. In a real enterprise deployment, an organisation would use its own owned and verified domain instead; `contoso.com` was used here since a custom domain wasn't available for this lab. Created users and groups within the new domain to represent a working directory structure, ready to be synchronised to the cloud.
