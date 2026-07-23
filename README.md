@@ -125,13 +125,13 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 ![Interaction required - session revoked, re-authentication prompted](interaction-required.png)
 
-![L1 stay signed in prompt after re-authenticating](l1-stay-signed-in.png)
+![l1 stay signed in prompt after re-authenticating](l1-successful-signin.png)
 
 **Test 2 — Disable in the cloud only:** Disabled the account in Entra ID. Confirmed this blocks cloud/portal sign-in entirely ("your account has been locked, contact your support person"). Checking the same account directly in on-premises Active Directory confirmed it remained fully enabled there. For a synced identity, disabling only in the cloud has no effect on-premises, leaving on-premises resources unaffected.
 
 **Test 3 — Disable on-premises, with PTA as the sign-in method:** Re-enabled the account in Entra ID, then disabled it directly in on-premises AD. Attempting to sign in with the correct, known password failed cleanly with "your account or password is incorrect" — the generic error message Microsoft deliberately shows regardless of the actual cause, to avoid revealing to a potential attacker whether the block was due to a wrong password or a disabled account. Re-enabling the account on-premises again immediately restored successful sign-in with the same password, confirming the on-premises disabled status — not the password, and not the cloud-side flag — was the determining factor.
 
-![Account or password is incorrect - sign-in blocked while disabled on-premises](account-password-incorrect.png)
+![Account or password is incorrect - sign-in blocked while disabled on-premises](account-password-required.png)
 
 **Why this happened — PTA governs the outcome:** This lab uses Pass-Through Authentication rather than Password Hash Synchronization. With PTA, every sign-in attempt is validated live against on-premises AD, regardless of what the cloud-side enabled/disabled flag shows. This means an account can appear fully "enabled" in Entra ID and still be completely blocked from signing in if it's disabled on-premises — the on-premises status is the true, authoritative check, not the cloud's own record of it.
 
