@@ -130,6 +130,20 @@ While completing SSPR, was prompted to enter a verification code but received no
 
 The precise root cause wasn't definitively confirmed. One possibility considered: MFA had originally been set up separately, before the SSPR process was configured, rather than both being done together in one continuous flow — it's possible this sequencing left the registration in an inconsistent state that only cleared once the method was removed and re-registered. This wasn't conclusively established, only that removing and re-registering resolved the issue.
 
+**Update: Root cause of SSPR failure identified through re-testing**
+
+After yesterday's SSPR troubleshooting (verification codes not arriving, "password reset isn't turned on" error), two hypotheses were formed to explain what went wrong:
+
+1. **Hypothesis 1 — Authentication method targeting was never properly configured.** The top-level Authentication Methods Policy screen showed Microsoft Authenticator as "Enabled" with target "All users," which was assumed to mean the method was already active for everyone — reasonable, given Security Defaults already enforces MFA tenant-wide by default. This assumption was not verified by looking deeper into the method's actual configuration.
+
+2. **Hypothesis 2 — MFA and SSPR registration were not completed together in one continuous flow.** Registering MFA separately, before returning later to configure SSPR, may have left the authenticator app registration in an inconsistent state, causing the verification code/push notification failures experienced yesterday.
+
+**Test:** Removed the existing authenticator app registration entirely, both from the device and from the user's account. Went into the Authentication Methods Policy, clicked directly into Microsoft Authenticator, confirmed it was enabled, and explicitly set the target to the specific SSPR test group (rather than relying on the top-level "All users" summary). Then registered MFA and completed SSPR together, in one continuous flow, via the SSPR registration link.
+
+**Result:** Registration and password reset completed successfully, with no errors and no missing verification codes.
+
+**Conclusion:** Since both changes were made together in this single test, it isn't possible to say with certainty which of the two hypotheses was the actual cause, or whether both contributed. What is confirmed is that explicitly setting the authentication method's target (rather than trusting the top-level summary view) is necessary, and that registering MFA and SSPR together, in one flow, produced a clean result. This is a genuine, tested finding — not merely a theory — though the precise weighting between the two contributing factors remains undetermined without further isolated testing.
+
 ## Business Outcome
 
 [Placeholder — to be completed once Conditional Access/MFA/PIM sections are built out.]
