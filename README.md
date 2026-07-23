@@ -141,6 +141,19 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 **Note on automation:** In real enterprise environments, this remediation is often automated via SIEM/SOAR tooling (e.g., Microsoft Sentinel playbooks), which can call the Microsoft Graph API to disable an account in Entra ID and, for hybrid identities, use a Hybrid Worker to execute the same disable action directly against the on-premises domain controller. This project performed the same remediation manually, specifically to verify and understand the underlying mechanism directly, rather than relying on automated tooling as a black box.
 
+## Conditional Access
+
+**Business case:** A username, password, and MFA on their own treat every sign-in the same way, no matter the circumstances. But not every sign-in carries the same risk — someone signing in from their usual device, in the usual location, isn't the same risk as someone signing in from an unfamiliar location, on a device nobody recognises, at an unusual time. Conditional Access lets a business go beyond just checking a password and MFA — it's an extra layer of security, in line with a Zero Trust or defense-in-depth approach. It lets a business set out exactly what has to be true before someone gets access — what they need to be compliant with, what conditions need to be met, what they need to sign into — rather than access being granted on a password and MFA alone. It also means everyone in the business is on the same page: rules apply consistently to everyone in scope, rather than access requirements being handled differently person to person, with no consistency.
+
+**What a business typically needs to control:** most organisations, at minimum, want to be able to answer a handful of questions — where are people signing in from, what device are they using, who are they, and what are they trying to access. From there, this project focuses on four realistic, common policies a business would want in place:
+
+1. **Enforce MFA for all users**, replacing Security Defaults' baseline with something deliberately built, auditable, and refinable.
+2. **Restrict sign-in by location**, since this lab represents a UK-only workforce with no legitimate reason for sign-ins to come from elsewhere.
+3. **Require stronger authentication for privileged/PIM-eligible accounts**, since the consequence of a compromised admin account is far greater than a standard user account.
+4. **Block legacy authentication protocols**, which don't support MFA at all and are a common target for credential-stuffing attacks.
+
+Each of these is built and tested individually below.
+
 ## Troubleshooting & Problems I Hit
 
 **Issue: Reader roles assigned but user had no access**
