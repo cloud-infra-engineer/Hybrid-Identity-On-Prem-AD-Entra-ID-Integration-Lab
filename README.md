@@ -173,6 +173,9 @@ After yesterday's SSPR troubleshooting (verification codes not arriving, "passwo
 
 **Conclusion:** Since both changes were made together in this single test, it isn't possible to say with certainty which of the two hypotheses was the actual cause, or whether both contributed. What is confirmed is that explicitly setting the authentication method's target (rather than trusting the top-level summary view) is necessary, and that registering MFA and SSPR together, in one flow, produced a clean result. This is a genuine, tested finding — not merely a theory — though the precise weighting between the two contributing factors remains undetermined without further isolated testing.
 
+**Issue: Sign-in failure mistaken for a wrong password, actually caused by missing MFA registration**
+
+During testing, a sign-in attempt failed even though the password was known to be correct. Checked the user's sign-in logs directly, which showed the failed attempt as **single-factor authentication**. Since Security Defaults enforces MFA tenant-wide with no exceptions, and this was the account's first-ever sign-in, the actual cause was that MFA had never been registered — not a wrong password, and not an account status issue. Signing in again correctly triggered the MFA registration flow, resolving it. This is a good example of using sign-in logs to identify the real cause of a failure rather than assuming based on a generic error message.
 ## Business Outcome
 
 [Placeholder — to be completed once Conditional Access/MFA/PIM sections are built out.]
