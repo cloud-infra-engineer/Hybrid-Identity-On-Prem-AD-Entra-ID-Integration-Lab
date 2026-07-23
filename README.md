@@ -111,17 +111,33 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 **Verified finding — administrator accounts use a separate, legacy SSPR system:** Attempting SSPR on an account holding an administrator role can fail with "password reset isn't turned on for your account," even when SSPR is correctly enabled for all standard users. This is a documented, specific behaviour — administrator accounts use a separate legacy configuration (SSPR-A) distinct from the standard user SSPR settings (SSPR-U) managed through the normal Entra admin center screen, and enabling SSPR for "All users" does not extend to administrator roles.
 **Test 1 — Revoke sessions only:** Revoked the user's active session in Entra ID. Confirmed this does not block sign-in — it only forces re-authentication. Signing back in with the same, unchanged password succeeded immediately. Revoking sessions alone is not sufficient containment; it only interrupts current access, not future access.
 
+## Emergency Account Revocation — Hybrid Environment (Cloud + On-Premises)
+
+**Business case:** When an account is suspected of being compromised, a business needs a clear, defined strategy for containment — who acts (a SOC analyst detecting and escalating, versus an IAM analyst executing the actual remediation), and what steps are actually taken. Without a defined process, containment can be incomplete or inconsistent, especially in a hybrid environment where an identity exists in two separate systems.
+
+**Approach for a cloud-only user:** Revoking the session is often not sufficient on its own — it only forces re-authentication, and since the account remains enabled with a valid password, the user (or an attacker) can simply sign back in immediately. The more effective action is disabling the account directly in Entra ID, which blocks all cloud/portal sign-in entirely.
+
+**Approach for a synced (hybrid) user:** The same cloud-side steps apply, but they are not sufficient on their own. The account must also be disabled on-premises in Active Directory — either through the user's properties in Active Directory Users and Computers, or via a PowerShell script (`Disable-ADAccount`), whichever method suits the situation. Both achieve the same result.
+
+**Verification testing:**
+
+**Test 1 — Revoke sessions only:** Revoked the user's active session in Entra ID. Confirmed this does not block sign-in — it only forces re-authentication. Signing back in with the same, unchanged password succeeded immediately. Revoking sessions alone is not sufficient containment; it only interrupts current access, not future access.
+
 ![Interaction required - session revoked, re-authentication prompted](interaction-required.png)
+
+![L1 stay signed in prompt after re-authenticating](l1-stay-signed-in.png)
 
 **Test 2 — Disable in the cloud only:** Disabled the account in Entra ID. Confirmed this blocks cloud/portal sign-in entirely ("your account has been locked, contact your support person"). Checking the same account directly in on-premises Active Directory confirmed it remained fully enabled there. For a synced identity, disabling only in the cloud has no effect on-premises, leaving on-premises resources unaffected.
 
-**Test 3 — Disable on-premises, with PTA as the sign-in method:** Re-enabled the account in Entra ID, then disabled it directly in on-premises AD. Attempting to sign in with the correct, known password failed cleanly with "your account or password is incorrect" — the generic error message Microsoft deliberately shows regardless of the actual cause, to avoid revealing to a potential attacker whether the block was due to a wrong password or a disabled account.
+**Test 3 — Disable on-premises, with PTA as the sign-in method:** Re-enabled the account in Entra ID, then disabled it directly in on-premises AD. Attempting to sign in with the correct, known password failed cleanly with "your account or password is incorrect" — the generic error message Microsoft deliberately shows regardless of the actual cause, to avoid revealing to a potential attacker whether the block was due to a wrong password or a disabled account. Re-enabling the account on-premises again immediately restored successful sign-in with the same password, confirming the on-premises disabled status — not the password, and not the cloud-side flag — was the determining factor.
 
 ![Account or password is incorrect - sign-in blocked while disabled on-premises](account-password-incorrect.png)
 
-Re-enabling the account on-premises again immediately restored successful sign-in with the same password, confirming the on-premises disabled status — not the password, and not the cloud-side flag — was the determining factor.
+**Why this happened — PTA governs the outcome:** This lab uses Pass-Through Authentication rather than Password Hash Synchronization. With PTA, every sign-in attempt is validated live against on-premises AD, regardless of what the cloud-side enabled/disabled flag shows. This means an account can appear fully "enabled" in Entra ID and still be completely blocked from signing in if it's disabled on-premises — the on-premises status is the true, authoritative check, not the cloud's own record of it.
 
-![Successful sign-in after re-enabling the account on-premises](l1-successful-signin.png)
+**Conclusion:** Proper incident containment for a compromised hybrid account requires disabling the account on-premises specifically, not just in the cloud — a cloud-only disable is insufficient with PTA in use, since it only blocks the cloud portal, not the underlying on-premises authentication check performed on every login.
+
+**Note on automation:** In real enterprise environments, this remediation is often automated via SIEM/SOAR tooling (e.g., Microsoft Sentinel playbooks), which can call the Microsoft Graph API to disable an account in Entra ID and, for hybrid identities, use a Hybrid Worker to execute the same disable action directly against the on-premises domain controller. This project performed the same remediation manually, specifically to verify and understand the underlying mechanism directly, rather than relying on automated tooling as a black box.
 
 ## Troubleshooting & Problems I Hit
 
