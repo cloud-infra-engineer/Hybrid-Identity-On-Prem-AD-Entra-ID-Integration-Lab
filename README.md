@@ -170,7 +170,7 @@ Security Defaults was disabled first, since it can't coexist with an active Cond
 
 Signed in as this new test user with the policy active — the sign-in correctly prompted for MFA registration and completed successfully.
 
-![Test user account signing into the portal](mfa-test-user-account-signin.png)
+![Test user account signing into the portal](signin-portal.png)
 
 ![Signing into the portal](signin-portal.png)
 
