@@ -145,7 +145,7 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 **Business case:** A username, password, and MFA on their own treat every sign-in the same way, no matter the circumstances. But not every sign-in carries the same risk — someone signing in from their usual device, in the usual location, isn't the same risk as someone signing in from an unfamiliar location, on a device nobody recognises, at an unusual time. Conditional Access lets a business go beyond just checking a password and MFA — it's an extra layer of security, in line with a Zero Trust or defense-in-depth approach. It lets a business set out exactly what has to be true before someone gets access — what they need to be compliant with, what conditions need to be met, what they need to sign into — rather than access being granted on a password and MFA alone. It also means everyone in the business is on the same page: rules apply consistently to everyone in scope, rather than access requirements being handled differently person to person, with no consistency.
 
-**What a business typically needs to control:** most organisations, at minimum, want to be able to answer a handful of questions — where are people signing in from, what device are they using, who are they, and what are they trying to access. From there, this project focuses on four realistic, common policies a business would want in place:
+**What a business typically needs to control:** most organisations, at minimum, want to be able to answer a handful of questions — where are people signing in from, what device are they using, who are they, and what are they trying to access. This project focuses on four realistic, common policies a business would want in place:
 
 1. **Enforce MFA for all users**, replacing Security Defaults' baseline with something deliberately built, auditable, and refinable.
 2. **Restrict sign-in by location**, since this lab represents a UK-only workforce with no legitimate reason for sign-ins to come from elsewhere.
@@ -154,6 +154,31 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 Each of these is built and tested individually below.
 
+**Policy 1 — Require MFA for all users**
+
+**What was built:** Created a Conditional Access policy targeting all users, with the two administrative break-glass accounts explicitly excluded to prevent lockout risk. Scoped to all resources, with a grant control requiring multifactor authentication (the general "Multifactor authentication" strength, not passwordless or phishing-resistant, since this is meant to be the organisation-wide baseline). The policy was first created and saved in Report-only mode.
+
+![Conditional Access policy created in Report-only mode](conditional-access-policy-creation-report-only.png)
+
+Security Defaults was disabled first, since it can't coexist with an active Conditional Access policy, and the policy was then switched on.
+
+![Conditional Access policy switched on](conditional-access-policy-on.png)
+
+**Verification:** Tested first using the built-in "What If" tool, confirming the policy would apply to a standard test user. Then created a brand-new, non-admin test user with no prior MFA registration.
+
+![MFA added for test user account](mfa-added.png)
+
+Signed in as this new test user with the policy active — the sign-in correctly prompted for MFA registration and completed successfully.
+
+![Test user account signing into the portal](mfa-test-user-account-signin.png)
+
+![Signing into the portal](signin-portal.png)
+
+Checked the sign-in log's Conditional Access tab directly for this event, which explicitly confirmed the policy had applied and MFA had been enforced through this Conditional Access policy specifically — not Security Defaults (already disabled) and not Microsoft's separate mandatory MFA enforcement for privileged accounts (this was a standard, non-admin user).
+
+![Conditional Access policy confirmed applied](conditional-access-policy-applied.png)
+
+This is the way to actually confirm a Conditional Access policy is doing what it's supposed to, rather than just assuming it's working because MFA happened — since there are multiple separate ways MFA can get enforced in Entra ID, and only checking the policy's own status in the sign-in log tells you for certain it was this policy, specifically, that did it.
 ## Troubleshooting & Problems I Hit
 
 **Issue: Reader roles assigned but user had no access**
