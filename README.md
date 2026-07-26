@@ -72,14 +72,6 @@ Operational trade-off: PTA allows organisations to keep password validation on-p
 **Why this matters:** Microsoft Entra ID and Active Directory are separate systems with separate policy engines. A clean hybrid design requires deliberate alignment, not assumptions that both sides will behave the same way automatically.
 
 **Takeaway:** Good hybrid governance means treating password policy as one aligned standard across both environments, even though the platforms still have some differences.
-
-### Password Policy Alignment
-
-**Business case:** In a hybrid environment with writeback enabled, password resets must satisfy both cloud and on-premises password policy requirements. If the two policies drift apart, the organisation ends up with inconsistent password rules and confusing user experience.
-
-**Why this matters:** Microsoft Entra ID and Active Directory are separate systems with separate policy engines. A clean hybrid design requires deliberate alignment, not assumptions that both sides will behave the same way automatically.
-
-**Takeaway:** Good hybrid governance means treating password policy as one aligned standard across both environments, even though the platforms still have some differences.
 ### Multi-Factor Authentication (MFA)
 
 **Business case:** A password alone is not enough. If it is phished, reused, or guessed, an attacker can log in without resistance. MFA adds a second factor so that a stolen password alone is not enough to gain access.
