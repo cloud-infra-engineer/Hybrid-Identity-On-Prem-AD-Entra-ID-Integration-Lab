@@ -181,43 +181,90 @@ Checked the sign-in log's Conditional Access tab directly for this event, which 
 This is the way to actually confirm a Conditional Access policy is doing what it's supposed to, rather than just assuming it's working because MFA happened — since there are multiple separate ways MFA can get enforced in Entra ID, and only checking the policy's own status in the sign-in log tells you for certain it was this policy, specifically, that did it.
 ## Troubleshooting & Problems I Hit
 
-**Issue: Reader roles assigned but user had no access**
+### 1) Reader roles assigned, but user had no access
 
-Assigned the test user (L1) Reader roles in both Entra ID and at the Azure subscription level, but on logging in as L1, I couldn't see any existing resources — Azure even prompted me to start a new free trial, as if the account had no relationship to the existing subscription at all.
+**Problem:**
+I assigned the test user (L1) Reader roles in both Entra ID and at the Azure subscription level, but when I signed in as L1, I couldn't see any existing resources. Azure even acted as if the account had no relationship to the subscription at all and prompted me to start a new free trial.
 
-Investigated by checking the role assignments directly and found both roles had been created as **Eligible** rather than **Active** — a PIM (Privileged Identity Management) setting. An Eligible assignment means the account is permitted to hold the role, but it isn't actually in effect until manually activated; nothing had been activated, so L1 genuinely had no access at all, despite the assignment technically existing.
+**Investigation:**
+I checked the role assignments directly and found that both roles had been created as Eligible rather than Active. That pointed to PIM being involved rather than a simple permissions issue.
 
-Resolved by removing both eligible assignments and reassigning them as Active, which took effect immediately and was confirmed by logging in as L1 and successfully seeing the existing VM. This was a useful hands-on demonstration of a real PIM concept — access isn't standing by default, it must be deliberately granted or activated — rather than just a lab misconfiguration to fix and move past.
+**Cause:**
+An Eligible assignment means the user is allowed to activate the role, but the role is not actually in effect until it is manually activated. Since nothing had been activated, L1 genuinely had no access.
 
-**Issue: SSPR failed with "password reset isn't turned on for your account"**
+**Fix:**
+I removed both eligible assignments and reassigned them as Active. Once that was done, the access took effect immediately, and I confirmed it by signing in as L1 and successfully seeing the existing VM.
 
-Attempted SSPR on a standard test user account and received the error: "You can't reset your own password because password reset isn't turned on for your account." The cause was straightforward — SSPR simply hadn't been correctly enabled/saved for that user at that point. Resolved by properly enabling password reset for the user and re-attempting.
+**Lesson learned:**
+This was a useful reminder that in PIM, having a role assignment does not always mean having active access. The distinction between Eligible and Active is important, because access has to be deliberately granted or activated before it is actually usable.
 
-**Issue: MFA verification code not received during SSPR**
+### 2) SSPR failed with password reset not enabled
 
-While completing SSPR, was prompted to enter a verification code but received no push notification on the authenticator app. Checked mysignins.microsoft.com and confirmed the authenticator app registration appeared correctly listed and matched to the correct device, but push notifications still weren't arriving. Resolved by deleting the existing authenticator app registration entirely and re-authenticating from scratch — after which push notifications worked and the password reset completed successfully.
+**Problem:**
+When I attempted SSPR on a standard test user account, I got the message: "You can't reset your own password because password reset isn't turned on for your account."
 
-The precise root cause wasn't definitively confirmed. One possibility considered: MFA had originally been set up separately, before the SSPR process was configured, rather than both being done together in one continuous flow — it's possible this sequencing left the registration in an inconsistent state that only cleared once the method was removed and re-registered. This wasn't conclusively established, only that removing and re-registering resolved the issue.
+**Investigation:**
+I checked the configuration and confirmed that SSPR had not been properly enabled and saved for that user at that point.
 
-**Update: Root cause of SSPR failure identified through re-testing**
+**Cause:**
+The user simply wasn't correctly included in the password reset configuration.
 
-After yesterday's SSPR troubleshooting (verification codes not arriving, "password reset isn't turned on" error), two hypotheses were formed to explain what went wrong:
+**Fix:**
+I enabled password reset for the user properly and then tried again.
 
-1. **Hypothesis 1 — Authentication method targeting was never properly configured.** The top-level Authentication Methods Policy screen showed Microsoft Authenticator as "Enabled" with target "All users," which was assumed to mean the method was already active for everyone — reasonable, given Security Defaults already enforces MFA tenant-wide by default. This assumption was not verified by looking deeper into the method's actual configuration.
+**Lesson learned:**
+This showed me that SSPR is very dependent on the target configuration being correct. If the user or group targeting is not set properly, the feature will fail even if everything else looks fine.
 
-2. **Hypothesis 2 — MFA and SSPR registration were not completed together in one continuous flow.** Registering MFA separately, before returning later to configure SSPR, may have left the authenticator app registration in an inconsistent state, causing the verification code/push notification failures experienced yesterday.
+### 3) MFA verification code not received during SSPR
 
-**Test:** Removed the existing authenticator app registration entirely, both from the device and from the user's account. Went into the Authentication Methods Policy, clicked directly into Microsoft Authenticator, confirmed it was enabled, and explicitly set the target to the specific SSPR test group (rather than relying on the top-level "All users" summary). Then registered MFA and completed SSPR together, in one continuous flow, via the SSPR registration link.
+**Problem:**
+While completing SSPR, I was prompted to enter a verification code, but the push notification did not arrive on the authenticator app.
 
-**Result:** Registration and password reset completed successfully, with no errors and no missing verification codes.
+**Investigation:**
+I checked mysignins.microsoft.com and confirmed that the authenticator app registration was showing correctly and matched to the correct device. Even so, the push notifications still were not working.
 
-**Conclusion:** Since both changes were made together in this single test, it isn't possible to say with certainty which of the two hypotheses was the actual cause, or whether both contributed. What is confirmed is that explicitly setting the authentication method's target (rather than trusting the top-level summary view) is necessary, and that registering MFA and SSPR together, in one flow, produced a clean result. This is a genuine, tested finding — not merely a theory — though the precise weighting between the two contributing factors remains undetermined without further isolated testing.
+**Cause:**
+The precise root cause was not confirmed at the time. One likely explanation was that MFA had originally been set up separately, before the SSPR process was configured, and that the registration ended up in an inconsistent state.
 
-**Issue: Sign-in failure mistaken for a wrong password, actually caused by missing MFA registration**
+**Fix:**
+I deleted the existing authenticator app registration completely and then re-registered from scratch. After that, the push notifications worked and the password reset completed successfully.
 
-During testing, a sign-in attempt failed even though the password was known to be correct. Checked the user's sign-in logs directly, which showed the failed attempt as **single-factor authentication**. Since Security Defaults enforces MFA tenant-wide with no exceptions, and this was the account's first-ever sign-in, the actual cause was that MFA had never been registered — not a wrong password, and not an account status issue. Signing in again correctly triggered the MFA registration flow, resolving it. This is a good example of using sign-in logs to identify the real cause of a failure rather than assuming based on a generic error message.
-## Business Outcome
+**Lesson learned:**
+Sometimes the quickest fix is to remove the existing registration and start again cleanly. It also reinforced the importance of checking whether the identity method registration itself is healthy, not just whether it appears to exist.
 
+### 4) Root cause of SSPR failure identified through re-testing
+
+**Problem:**
+After troubleshooting the SSPR issue, I wanted to confirm what had actually caused the verification code and password reset problems.
+
+**Investigation:**
+I formed two hypotheses: first, that the authentication method targeting had not been configured correctly; and second, that MFA and SSPR registration had not been completed together in one continuous flow. I removed the existing authenticator registration, then went into the Authentication Methods Policy, confirmed Microsoft Authenticator was enabled, and explicitly targeted the SSPR test group rather than relying on the top-level summary. I then registered MFA and completed SSPR together in a single flow.
+
+**Cause:**
+Because I changed both variables at once, I can't say with certainty which one was the exact cause. What I can confirm is that the explicit targeting and the single-flow registration both produced a clean result.
+
+**Fix:**
+I set the authentication method target properly and completed MFA and SSPR registration in one continuous process.
+
+**Lesson learned:**
+This was a good lesson in not trusting a top-level summary view alone. It also showed me that when testing identity workflows, the order of registration can matter, and that clean re-registration can resolve issues that are hard to diagnose from symptoms alone.
+
+### 5) Sign-in failure mistaken for wrong password
+
+**Problem:**
+A sign-in attempt failed even though I knew the password was correct.
+
+**Investigation:**
+I checked the user's sign-in logs directly and saw that the failed attempt was recorded as single-factor authentication. Since Security Defaults enforces MFA tenant-wide, I realised this was the account's first sign-in and MFA had never been registered.
+
+**Cause:**
+The real issue was not the password or the account state — it was missing MFA registration.
+
+**Fix:**
+I signed in again, which correctly triggered the MFA registration flow, and the issue was resolved.
+
+**Lesson learned:**
+This reinforced the value of sign-in logs. The error message itself was not enough to explain the failure, but the logs showed the actual reason quickly. In IAM, you have to work from evidence, not assumptions.
 [Placeholder — to be completed once Conditional Access/MFA/PIM sections are built out.]
 
 ## References
