@@ -59,7 +59,7 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 Pass-Through Authentication (PTA)
 
-B**usiness case:** Some organisations have policies or regulatory requirements that prevent password hashes from being synchronised to the cloud. Pass-Through Authentication (PTA) addresses this by validating user sign-in requests against on-premises Active Directory in real time, without synchronising password hashes to Microsoft Entra ID.
+**Business case:** Some organisations have policies or regulatory requirements that prevent password hashes from being synchronised to the cloud. Pass-Through Authentication (PTA) addresses this by validating user sign-in requests against on-premises Active Directory in real time, without synchronising password hashes to Microsoft Entra ID.
 
 Operational trade-off: PTA allows organisations to keep password validation on-premises, but it introduces a dependency on the on-premises environment and the Microsoft Entra authentication agents. If these components are unavailable, cloud authentication may be affected unless another sign-in method, such as Password Hash Synchronization, is configured. For many organisations, Password Hash Synchronization (PHS) remains the recommended option because it provides greater resilience and a simpler deployment, while still meeting the security requirements of most environments.
 
