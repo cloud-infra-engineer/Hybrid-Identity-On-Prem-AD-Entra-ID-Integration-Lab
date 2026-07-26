@@ -23,7 +23,7 @@ This project focuses on hybrid identity synchronisation between on-premises AD a
 
 ### Password Hash Synchronization (PHS)
 
-**Business case:** Without hybrid identity, an employee would need separate credentials for on-premises resources and cloud applications. That means more passwords to manage, more opportunities to forget them, and more accounts for IT to secure. Password Hash Synchronization reduces that friction by allowing the same on-premises identity to be used for cloud authentication as well.
+Business case: Without hybrid identity, employees typically need separate credentials for on-premises Active Directory and cloud services such as Microsoft 365. This increases the number of passwords users must remember and the number of identities IT must manage. Password Hash Synchronization (PHS) reduces this complexity by synchronizing a secure hash of the user's on-premises Active Directory password to Microsoft Entra ID, allowing users to sign in to both on-premises and cloud resources using the same username and password, while cloud authentication is performed by Microsoft Entra ID
 
 **What was built:** Configured Entra Connect to synchronise on-premises Active Directory with Entra ID, with Password Hash Synchronization enabled. This requires Entra Connect specifically — Password Hash Synchronization was enabled as part of the initial Entra Connect configuration wizard — not a separate step performed afterward, but a specific option selected during setup itself.
 
