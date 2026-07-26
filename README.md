@@ -8,8 +8,7 @@ Organisations modernising to the cloud rarely start with a clean slate. Most sti
 I built a hybrid identity environment by deploying Active Directory Domain Services (AD DS) inside an Azure VM and synchronising it to Microsoft Entra ID using Microsoft Entra Connect. This creates one identity for each user that works across both on-premises and cloud environments, rather than maintaining separate disconnected identities in each place.
 ## Scope Note
 
-This project focuses on hybrid identity synchronisation between on-premises AD and Microsoft Entra ID, and on layering modern access controls such as Conditional Access, MFA, and PIM on top of those synchronised identities. Access reviews and broader governance certification are out of scope for this lab and are covered separately in the IGA project.
-
+This project focuses on hybrid identity synchronisation between on-premises AD and Microsoft Entra ID, and on layering modern access controls such as Conditional Access, MFA, and PIM on top of those synchronised identities. Access reviews and entitlement certification are also included, as part of the broader identity governance workflow demonstrated in this lab.
 ![Architecture Diagram](hybrid-lab-architecture.png)
 
 ## What I Built
