@@ -23,7 +23,7 @@ This project focuses on hybrid identity synchronisation between on-premises AD a
 
 ### Password Hash Synchronization (PHS)
 
-Business case: Without hybrid identity, employees typically need separate credentials for on-premises Active Directory and cloud services such as Microsoft 365. This increases the number of passwords users must remember and the number of identities IT must manage. Password Hash Synchronization (PHS) reduces this complexity by synchronizing a secure hash of the user's on-premises Active Directory password to Microsoft Entra ID, allowing users to sign in to both on-premises and cloud resources using the same username and password, while cloud authentication is performed by Microsoft Entra ID
+**Business case:** Without hybrid identity, employees typically need separate credentials for on-premises Active Directory and cloud services such as Microsoft 365. This increases the number of passwords users must remember and the number of identities IT must manage. Password Hash Synchronization (PHS) reduces this complexity by synchronizing a secure hash of the user's on-premises Active Directory password to Microsoft Entra ID, allowing users to sign in to both on-premises and cloud resources using the same username and password, while cloud authentication is performed by Microsoft Entra ID
 
 **What was built:** Configured Entra Connect to synchronise on-premises Active Directory with Entra ID, with Password Hash Synchronization enabled. This requires Entra Connect specifically — Password Hash Synchronization was enabled as part of the initial Entra Connect configuration wizard — not a separate step performed afterward, but a specific option selected during setup itself.
 
@@ -45,7 +45,7 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 ### Password Writeback
 
-**Business case:** Without writeback, password resets have to happen on-premises. That keeps Active Directory as the source of truth, but it removes self-service convenience and increases helpdesk overhead. Writeback allows password changes made in Microsoft Entra ID to flow back to on-premises Active Directory so both sides stay consistent.
+**Business case:** Without hybrid identity, employees typically need separate credentials for on-premises Active Directory and cloud services such as Microsoft 365. This increases the number of passwords users must remember and the number of user accounts IT must manage. Password Hash Synchronization (PHS) reduces this complexity by synchronizing a secure hash of the user's on-premises Active Directory password to Microsoft Entra ID. This enables users to sign in to both on-premises and cloud resources using the same username and password, while authentication for cloud resources is performed by Microsoft Entra ID.
 
 **What was built:** I enabled password writeback through the Entra Connect configuration wizard and then enabled the related setting in the Microsoft Entra admin center under password reset integration.
 
@@ -57,11 +57,11 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 **Verification:** Confirmed the before/after behaviour directly: attempting a password reset while writeback was disabled failed with an authorisation error, consistent with the intended restriction. Once writeback was enabled, the same reset action succeeded, confirming the feature was correctly configured and functioning.
 
-### Pass-Through Authentication (PTA)
+Pass-Through Authentication (PTA)
 
-**Business case:** Some organisations do not want password hashes synchronised to the cloud at all. Pass-Through Authentication addresses that requirement by validating sign-in attempts against on-premises Active Directory in real time, without storing the password hash in Microsoft Entra ID.
+B**usiness case:** Some organisations have policies or regulatory requirements that prevent password hashes from being synchronised to the cloud. Pass-Through Authentication (PTA) addresses this by validating user sign-in requests against on-premises Active Directory in real time, without synchronising password hashes to Microsoft Entra ID.
 
-**Operational trade-off:** PTA gives stronger control over credential handling, but it also increases dependency on the on-premises environment and the authentication agent. For that reason, many organisations still prefer PHS unless they have a specific requirement that pushes them toward PTA.
+Operational trade-off: PTA allows organisations to keep password validation on-premises, but it introduces a dependency on the on-premises environment and the Microsoft Entra authentication agents. If these components are unavailable, cloud authentication may be affected unless another sign-in method, such as Password Hash Synchronization, is configured. For many organisations, Password Hash Synchronization (PHS) remains the recommended option because it provides greater resilience and a simpler deployment, while still meeting the security requirements of most environments.
 
 **What was built:** I configured PTA through the Entra Connect wizard. Because only one sign-in method can be active at a time, enabling PTA disables PHS.
 
@@ -143,7 +143,7 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 ## Conditional Access
 
-**Business case:** A password and MFA treat every sign-in the same way, even though not every sign-in has the same risk. Conditional Access lets the business apply rules based on user, device, location, and resource, which fits a Zero Trust approach much better than relying on defaults alone.
+**Business case:** Traditional authentication methods, such as passwords and multifactor authentication (MFA), apply the same authentication requirements to every sign-in, regardless of the level of risk. Conditional Access enables organisations to enforce access policies based on signals such as the user, device, location, application, and sign-in risk. This allows organisations to apply Zero Trust principles by verifying each access request based on its context rather than relying on static authentication requirements alone.
 
 **What a business typically needs to control:** At minimum, most organisations want to enforce MFA, restrict access by location, require stronger controls for privileged accounts, and block legacy authentication. That is the set of controls this lab is building toward.
 
