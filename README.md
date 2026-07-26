@@ -113,14 +113,13 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 **Verified finding — administrator accounts use a separate, legacy SSPR system:** Attempting SSPR on an account holding an administrator role can fail with "password reset isn't turned on for your account," even when SSPR is correctly enabled for all standard users. This is a documented, specific behaviour — administrator accounts use a separate legacy configuration (SSPR-A) distinct from the standard user SSPR settings (SSPR-U) managed through the normal Entra admin center screen, and enabling SSPR for "All users" does not extend to administrator roles.
 **Test 1 — Revoke sessions only:** Revoked the user's active session in Entra ID. Confirmed this does not block sign-in — it only forces re-authentication. Signing back in with the same, unchanged password succeeded immediately. Revoking sessions alone is not sufficient containment; it only interrupts current access, not future access.
+### Emergency Account Revocation — Hybrid Environment
 
-## Emergency Account Revocation — Hybrid Environment (Cloud + On-Premises)
+**Business case:** When an account is suspected of being compromised, the business needs a clear containment process. In a hybrid environment, that means knowing whether the identity is cloud-only or synced, and acting in both places where necessary.
 
-**Business case:** When an account is suspected of being compromised, a business needs a clear, defined strategy for containment — who acts (a SOC analyst detecting and escalating, versus an IAM analyst executing the actual remediation), and what steps are actually taken. Without a defined process, containment can be incomplete or inconsistent, especially in a hybrid environment where an identity exists in two separate systems.
+**Approach for a cloud-only user:** Revoking sessions alone is not enough, because the user can usually sign in again. Disabling the account in Microsoft Entra ID is the more effective containment action.
 
-**Approach for a cloud-only user:** Revoking the session is often not sufficient on its own — it only forces re-authentication, and since the account remains enabled with a valid password, the user (or an attacker) can simply sign back in immediately. The more effective action is disabling the account directly in Entra ID, which blocks all cloud/portal sign-in entirely.
-
-**Approach for a synced (hybrid) user:** The same cloud-side steps apply, but they are not sufficient on their own. The account must also be disabled on-premises in Active Directory — either through the user's properties in Active Directory Users and Computers, or via a PowerShell script (`Disable-ADAccount`), whichever method suits the situation. Both achieve the same result.
+**Approach for a synced user:** The cloud-side action still matters, but the on-premises account also has to be disabled. In this lab, the sign-in method determines the exact behaviour, so the containment approach has to match the authentication model.
 
 **Verification testing:**
 
@@ -144,15 +143,11 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 ## Conditional Access
 
-**Business case:** A username, password, and MFA on their own treat every sign-in the same way, no matter the circumstances. But not every sign-in carries the same risk — someone signing in from their usual device, in the usual location, isn't the same risk as someone signing in from an unfamiliar location, on a device nobody recognises, at an unusual time. Conditional Access lets a business go beyond just checking a password and MFA — it's an extra layer of security, in line with a Zero Trust or defense-in-depth approach. It lets a business set out exactly what has to be true before someone gets access — what they need to be compliant with, what conditions need to be met, what they need to sign into — rather than access being granted on a password and MFA alone. It also means everyone in the business is on the same page: rules apply consistently to everyone in scope, rather than access requirements being handled differently person to person, with no consistency.
+**Business case:** A password and MFA treat every sign-in the same way, even though not every sign-in has the same risk. Conditional Access lets the business apply rules based on user, device, location, and resource, which fits a Zero Trust approach much better than relying on defaults alone.
 
-**What a business typically needs to control:** most organisations, at minimum, want to be able to answer a handful of questions — where are people signing in from, what device are they using, who are they, and what are they trying to access. This project focuses on four realistic, common policies a business would want in place:
+**What a business typically needs to control:** At minimum, most organisations want to enforce MFA, restrict access by location, require stronger controls for privileged accounts, and block legacy authentication. That is the set of controls this lab is building toward.
 
-1. **Enforce MFA for all users**, replacing Security Defaults' baseline with something deliberately built, auditable, and refinable.
-2. **Restrict sign-in by location**, since this lab represents a UK-only workforce with no legitimate reason for sign-ins to come from elsewhere.
-3. **Require stronger authentication for privileged/PIM-eligible accounts**, since the consequence of a compromised admin account is far greater than a standard user account.
-4. **Block legacy authentication protocols**, which don't support MFA at all and are a common target for credential-stuffing attacks.
-
+**Policy 1 — Require MFA for all users:** I created a Conditional Access policy targeting all users except the break-glass accounts, scoped it to all resources, and required MFA as the grant control. I used report-only mode first, confirmed the policy with What If, then switched it on and verified the sign-in logs showed the policy applying correctly.
 Each of these is built and tested individually below.
 
 **Policy 1 — Require MFA for all users**
