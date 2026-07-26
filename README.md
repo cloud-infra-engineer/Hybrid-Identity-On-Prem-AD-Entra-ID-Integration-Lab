@@ -2,37 +2,29 @@
 
 ## Business Problem
 
-Organisations modernising to the cloud rarely start with a clean slate — most still depend on legacy on-premises infrastructure (file servers, older line-of-business applications, payroll systems) that's tied to Active Directory, while also needing modern cloud applications secured through Entra ID. Maintaining two completely separate identity systems means employees hold two sets of credentials, IT manages two separate onboarding/offboarding processes, and access can drift out of sync between the two environments — creating both a poor user experience and a real security and audit risk.
-
+Organisations modernising to the cloud rarely start with a clean slate. Most still rely on legacy on-premises infrastructure such as file servers, line-of-business applications, and payroll systems tied to Active Directory, while also needing cloud applications secured through Microsoft Entra ID. Running two separate identity systems creates duplicate credentials, duplicate onboarding and offboarding processes, and a real risk of access drifting out of sync between environments.
 ## Solution Overview
 
-Built a hybrid identity environment by deploying Active Directory Domain Services (AD DS) inside an Azure VM, then synchronising it to Microsoft Entra ID using Entra Connect/Cloud Sync. This creates a single, authoritative identity for each user that works consistently across both legacy on-premises systems and modern cloud applications — rather than maintaining separate, disconnected identities in each environment.
-
+I built a hybrid identity environment by deploying Active Directory Domain Services (AD DS) inside an Azure VM and synchronising it to Microsoft Entra ID using Microsoft Entra Connect. This creates one identity for each user that works across both on-premises and cloud environments, rather than maintaining separate disconnected identities in each place.
 ## Scope Note
 
-This project focuses on establishing hybrid identity synchronisation between on-premises AD and Entra ID, and layering modern access controls (Conditional Access, MFA, PIM) on top of the synchronised identities.
-
-[Placeholder — update as you decide what's in/out of scope, e.g. access reviews, full governance certification, covered separately elsewhere.]
-
-## Architecture
+This project focuses on hybrid identity synchronisation between on-premises AD and Microsoft Entra ID, and on layering modern access controls such as Conditional Access, MFA, and PIM on top of those synchronised identities. Access reviews and broader governance certification are out of scope for this lab and are covered separately in the IGA project.
 
 ![Architecture Diagram](hybrid-lab-architecture.png)
 
 ## What I Built
 
-**AD DS Setup:** Deployed a Windows Server 2025 VM in Azure to act as the on-premises domain controller — a practical lab substitute for physical on-prem hardware, achieving the same result. Promoted the server to a domain controller through the standard AD DS configuration process. Used `contoso.com` as the domain name — a reserved domain Microsoft specifically allows for lab and testing purposes, and the convention used throughout most of Microsoft's own documentation and training material. In a real enterprise deployment, an organisation would use its own owned and verified domain instead; `contoso.com` was used here since a custom domain wasn't available for this lab. Created users and groups within the new domain to represent a working directory structure, ready to be synchronised to the cloud.
+**AD DS Setup:** I deployed a Windows Server 2025 VM in Azure to act as a practical stand-in for on-premises hardware, then promoted it to a domain controller using the standard AD DS configuration process. I used `contoso.com` as the domain name because it is a Microsoft testing convention and a reserved example domain commonly used in lab and training material. In a real deployment, the organisation would use its own verified domain. I then created users and groups in the domain to provide a working directory structure ready for cloud synchronisation.
 
-**Entra Connect Configuration:** Downloaded the Entra Connect agent directly from the Microsoft Download Center onto the domain controller VM, then configured synchronisation through the Entra Connect configuration wizard. Confirmed the configuration completed successfully by checking Entra ID afterward and verifying that users synced correctly — covered in detail in the Sync Verification section below.
+**Entra Connect Configuration:** I downloaded Microsoft Entra Connect from the Microsoft Download Center onto the domain controller VM and configured synchronisation through the Entra Connect wizard. After configuration completed, I verified in Microsoft Entra ID that the users had synced successfully.
 
-**Design consideration — Entra Connect vs. Cloud Sync:** Choosing between the traditional Entra Connect sync engine and the newer Cloud Sync agent-based approach is a genuine trade-off, not a fixed right answer. Entra Connect was used in this project specifically because it supports capabilities Cloud Sync doesn't: full configuration of Pass-Through Authentication (not available in Cloud Sync), granular Password Writeback configuration, and support for multiple forests within a single domain setup. Cloud Sync, by contrast, is lighter-weight and supports multiple agents for higher availability, making it a better fit for simpler environments that don't need this level of configurability. The right choice depends on the specific organisation's complexity and requirements — consistent with the broader theme running through this project: identity and access management decisions are rarely universally "correct," they're trade-offs weighed against a specific business context.
+**Design consideration — Entra Connect vs. Cloud Sync:** I used Microsoft Entra Connect in this lab because it supports sign-in and synchronisation scenarios that are more fully featured than Cloud Sync in certain areas. Cloud Sync is lighter-weight and better suited to simpler or highly available deployments, while Entra Connect is still the better fit when you need the broader set of hybrid identity capabilities this lab is demonstrating. The choice is a trade-off, not a universal best answer, and depends on the organisation's requirements.
 
-**Sync Verification:** Confirmed that user accounts created directly in on-premises AD DS synchronised successfully to Entra ID — verified by checking Entra ID's Users list and confirming the same accounts appear there automatically, without manual creation in the cloud.
+**Sync Verification:** I confirmed that users created on-premises in AD DS appeared automatically in Microsoft Entra ID without manual cloud creation.
 
-*(Conditional Access, MFA, and PIM sections to be added as the lab progresses.)*
+### Password Hash Synchronization (PHS)
 
-## Password Hash Synchronization (PHS)
-
-**Business case:** Without hybrid identity, an employee would need separate credentials for on-premises resources and cloud/SaaS applications — one username and password to log into their on-prem-connected systems, and a completely different one for cloud apps like Microsoft 365 or other SaaS tools. This creates a worse user experience, more passwords to manage and forget, and more accounts for IT to secure. Password Hash Synchronization solves this by allowing an employee to use the same on-premises username and password to authenticate into cloud resources — a single identity, working consistently across both environments.
+**Business case:** Without hybrid identity, an employee would need separate credentials for on-premises resources and cloud applications. That means more passwords to manage, more opportunities to forget them, and more accounts for IT to secure. Password Hash Synchronization reduces that friction by allowing the same on-premises identity to be used for cloud authentication as well.
 
 **What was built:** Configured Entra Connect to synchronise on-premises Active Directory with Entra ID, with Password Hash Synchronization enabled. This requires Entra Connect specifically — Password Hash Synchronization was enabled as part of the initial Entra Connect configuration wizard — not a separate step performed afterward, but a specific option selected during setup itself.
 
