@@ -158,10 +158,8 @@ Signed in as this new test user with the policy active — the sign-in correctly
 
 ![Test user account signing into the portal](signin-portal.png)
 
-![Signing into the portal](signin-portal.png)
 
 Checked the sign-in log's Conditional Access tab directly for this event, which explicitly confirmed the policy had applied and MFA had been enforced through this Conditional Access policy specifically — not Security Defaults (already disabled) and not Microsoft's separate mandatory MFA enforcement for privileged accounts (this was a standard, non-admin user).
-
 
 
 This is the way to actually confirm a Conditional Access policy is doing what it's supposed to, rather than just assuming it's working because MFA happened — since there are multiple separate ways MFA can get enforced in Entra ID, and only checking the policy's own status in the sign-in log tells you for certain it was this policy, specifically, that did it.
