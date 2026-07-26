@@ -148,8 +148,6 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 **What a business typically needs to control:** At minimum, most organisations want to enforce MFA, restrict access by location, require stronger controls for privileged accounts, and block legacy authentication. That is the set of controls this lab is building toward.
 
 **Policy 1 — Require MFA for all users:** I created a Conditional Access policy targeting all users except the break-glass accounts, scoped it to all resources, and required MFA as the grant control. I used report-only mode first, confirmed the policy with What If, then switched it on and verified the sign-in logs showed the policy applying correctly.
-Each of these is built and tested individually below.
-
 **Policy 1 — Require MFA for all users**
 
 **What was built:** Created a Conditional Access policy targeting all users, with the two administrative break-glass accounts explicitly excluded to prevent lockout risk. Scoped to all resources, with a grant control requiring multifactor authentication (the general "Multifactor authentication" strength, not passwordless or phishing-resistant, since this is meant to be the organisation-wide baseline). The policy was first created and saved in Report-only mode.
