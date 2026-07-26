@@ -27,9 +27,11 @@ This project focuses on hybrid identity synchronisation between on-premises AD a
 **Business case:** Without hybrid identity, an employee would need separate credentials for on-premises resources and cloud applications. That means more passwords to manage, more opportunities to forget them, and more accounts for IT to secure. Password Hash Synchronization reduces that friction by allowing the same on-premises identity to be used for cloud authentication as well.
 **What was built:** Configured Entra Connect to synchronise on-premises Active Directory with Entra ID, with Password Hash Synchronization enabled. This requires Entra Connect specifically — Password Hash Synchronization was enabled as part of the initial Entra Connect configuration wizard — not a separate step performed afterward, but a specific option selected during setup itself.
 
-**A caveat worth naming:** this only works cleanly when the on-premises domain matches a verified domain in the Entra ID tenant. In this lab, the on-prem domain (`contoso.com`) doesn't match the tenant's original sign-up domain, so Entra Connect falls back to mapping synced users to the tenant's default `.onmicrosoft.com` domain instead. In a real enterprise deployment, the on-prem domain would typically be a verified, owned domain matching the cloud tenant, allowing a fully consistent sign-in experience across both environments.
+**What was built:** I enabled Password Hash Synchronization during the Microsoft Entra Connect configuration wizard. This is part of the initial setup, not a separate later step.
 
-**Verification:** Confirmed this worked correctly through three layers of proof, not just one:
+Caveat: In this lab, the on-premises domain does not match the tenant’s original sign-up domain, so synced users fall back to the tenant’s .onmicrosoft.com domain for sign-in. In a real enterprise deployment, the on-premises domain would normally be a verified domain in the tenant, giving a more consistent sign-in experience.
+
+**Verification:** I confirmed this worked at three levels: the users synced into Microsoft Entra ID, I could sign in as a synced user using the same password set on-premises, and I tested that Reader-level access behaved as expected by allowing viewing but blocking VM creation. That negative test was the strongest proof that the permission boundary was being enforced correctly.
 
 ![L1 signed in as synced user](L1%20sign%20in.png)
 ![VM visible but not running — Reader access confirmed](vm%20not%20running.png)
@@ -41,9 +43,13 @@ This project focuses on hybrid identity synchronisation between on-premises AD a
 
 Together, these three layers confirm Password Hash Synchronization works end-to-end: a single on-premises identity, successfully synced, authenticated, and correctly authorized into cloud resources.
 
-## Password Writeback
+### Password Writeback
 
-**Business case:** Without writeback, all password resets must happen on-premises — safer for keeping AD as the clear source of truth, but less convenient, since users can't self-serve and admins can't reset a synced user's password directly from the cloud. Writeback solves this by allowing password changes made in Entra ID (whether by an admin or via self-service reset) to sync back to on-premises AD, keeping both sides consistent. The trade-off: this is a deliberate, engineered exception to the normal one-directional flow of identity data (on-prem source → cloud) — introducing a controlled reversal of that direction, purely to enable convenience.
+**Business case:** Without writeback, password resets have to happen on-premises. That keeps Active Directory as the source of truth, but it removes self-service convenience and increases helpdesk overhead. Writeback allows password changes made in Microsoft Entra ID to flow back to on-premises Active Directory so both sides stay consistent.
+
+**What was built:** I enabled password writeback through the Entra Connect configuration wizard and then enabled the related setting in the Microsoft Entra admin center under password reset integration.
+
+**Verification:** I tested both states directly. When writeback was disabled, password reset failed as expected. Once enabled, the same reset completed successfully.
 
 **Tested resilience point:** With PHS already handling authentication via a synced hash, stopping the on-premises AD VM entirely had no effect on sign-in for already-synced users — proving PHS-based authentication is genuinely independent of on-prem availability. Writeback, however, does depend on on-prem being reachable, since a cloud password change has nowhere to write back to if AD is offline.
 
@@ -51,43 +57,47 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 **Verification:** Confirmed the before/after behaviour directly: attempting a password reset while writeback was disabled failed with an authorisation error, consistent with the intended restriction. Once writeback was enabled, the same reset action succeeded, confirming the feature was correctly configured and functioning.
 
-## Pass-Through Authentication (PTA)
+### Pass-Through Authentication (PTA)
 
-**Business case:** Some organisations — particularly those in regulated industries or with strict data control requirements — have policies stating that credential data, even in hashed form, must never leave their own network. Pass-Through Authentication solves this: when a user signs in to a cloud app, the request is passed back to a lightweight agent on-premises, which validates the password directly against on-premises Active Directory in real time and returns a simple valid/invalid response — the password is never synced to or stored in the cloud at all.
+**Business case:** Some organisations do not want password hashes synchronised to the cloud at all. Pass-Through Authentication addresses that requirement by validating sign-in attempts against on-premises Active Directory in real time, without storing the password hash in Microsoft Entra ID.
 
-**Operational risk — dependency and lockout:** Despite PTA's stronger data control, most organisations still choose PHS instead, because of a significant operational trade-off: if something goes wrong with the PTA agent, on-premises connectivity, or the Global Admin account used to configure it, authentication can fail across both environments simultaneously, with no built-in break-glass recovery process — resolving this may require raising a case with Microsoft support rather than fixing it directly.
+**Operational trade-off:** PTA gives stronger control over credential handling, but it also increases dependency on the on-premises environment and the authentication agent. For that reason, many organisations still prefer PHS unless they have a specific requirement that pushes them toward PTA.
 
-**Switching sign-in methods is itself a risk point:** Microsoft's own documentation notes that changing away from PTA to another sign-in method disables PTA entirely and uninstalls the authentication agent — organisations are advised to have a backup authentication agent already running before making this change, to avoid breaking sign-in during the transition.
+**What was built:** I configured PTA through the Entra Connect wizard. Because only one sign-in method can be active at a time, enabling PTA disables PHS.
 
-**What was built:** Configured PTA through the Entra Connect configuration wizard, under sign-in method, selecting Pass-Through Authentication — which automatically disables Password Hash Synchronization, since only one sign-in method can be active at a time.
+### Password Policy Alignment
 
-## Password Policy Alignment — A Hybrid Governance Consideration
+**Business case:** In a hybrid environment with writeback enabled, password resets must satisfy both cloud and on-premises password policy requirements. If the two policies drift apart, the organisation ends up with inconsistent password rules and confusing user experience.
 
-**Business case:** In a hybrid environment with writeback enabled, a password reset is checked against two separate policy engines in sequence — Entra ID's cloud policy first, then on-premises AD's policy — regardless of whether PHS or PTA is the sign-in method in use. If these two policies aren't deliberately kept in alignment (same minimum length, complexity requirements, etc.), the organisation ends up with genuinely inconsistent password rules depending on which system is asked. This is a real audit and governance risk — an auditor asking "what is your password policy" deserves a single, consistent answer, not "it depends which system you check."
+**Why this matters:** Microsoft Entra ID and Active Directory are separate systems with separate policy engines. A clean hybrid design requires deliberate alignment, not assumptions that both sides will behave the same way automatically.
 
-**Why this isn't automatic:** Entra ID and on-premises AD are two separate products with independently-built policy engines — on-prem AD's policy model predates Entra ID by decades, and hybrid identity connects two systems that were never designed as one unified whole. Alignment has to be a deliberate configuration choice, not something that happens by default.
+**Takeaway:** Good hybrid governance means treating password policy as one aligned standard across both environments, even though the platforms still have some differences.
 
-**A limitation worth noting:** the two policies can be aligned but never made fully identical — Entra ID always applies some cloud-specific protections (such as the global banned password list) that aren't configurable to match on-prem's specific rules, layering additional protection on top of an aligned baseline rather than replacing it.
+### Password Policy Alignment
 
-**Takeaway:** good hybrid identity governance means treating password policy as a single, deliberately-aligned standard across both environments — not two independently-drifting policies that happen to coexist.
+**Business case:** In a hybrid environment with writeback enabled, password resets must satisfy both cloud and on-premises password policy requirements. If the two policies drift apart, the organisation ends up with inconsistent password rules and confusing user experience.
 
-## Multi-Factor Authentication (MFA)
+**Why this matters:** Microsoft Entra ID and Active Directory are separate systems with separate policy engines. A clean hybrid design requires deliberate alignment, not assumptions that both sides will behave the same way automatically.
 
-**Business case:** A password alone is a single point of failure — if it's phished, reused from a breached site, or guessed, an attacker has everything they need to access the account. MFA closes this gap by requiring a second, independent form of proof beyond the password — something the user has (an authenticator app, a FIDO2 key) or something they are (biometrics) — so a stolen password on its own is no longer sufficient to gain access. This significantly reduces successful account compromise, since the majority of real-world attacks rely on a stolen or guessed password working in isolation.
+**Takeaway:** Good hybrid governance means treating password policy as one aligned standard across both environments, even though the platforms still have some differences.
+### Multi-Factor Authentication (MFA)
 
-**What was built:** Configured MFA for test users using the Microsoft Authenticator app with number matching (rather than simple push approval), which specifically defends against MFA fatigue attacks — where an attacker who already has a valid password bombards the user with repeated approval prompts hoping they'll accept one out of frustration. Number matching requires the user to actively read and enter a number shown on screen, defeating that specific technique.
+**Business case:** A password alone is not enough. If it is phished, reused, or guessed, an attacker can log in without resistance. MFA adds a second factor so that a stolen password alone is not enough to gain access.
 
-**Design consideration — MFA strength should scale with risk:** Not all MFA methods offer equal protection. SMS and voice codes are convenient but vulnerable to interception and SIM-swapping. Authenticator app push/number matching is stronger. Phishing-resistant methods (FIDO2 security keys, Windows Hello for Business) are the strongest, since they're cryptographically bound to the specific device and can't be tricked by a fake login page. A sensible design applies a baseline method (authenticator app) organisation-wide, while reserving phishing-resistant methods specifically for higher-risk actions — such as activating a privileged role via PIM — since the consequence of a compromised privileged account is far greater than a standard user account.
+**What was built:** I configured MFA for test users using Microsoft Authenticator with number matching. This is stronger than simple push approval because it helps defend against MFA fatigue attacks.
+
+**Design consideration:** Not all MFA methods are equal. Authenticator app-based MFA is stronger than SMS or voice, while phishing-resistant methods such as FIDO2 keys and Windows Hello for Business are stronger still. A sensible design uses the right method for the right risk.
 
 **A note on residual risk:** MFA dramatically reduces — but does not eliminate — account compromise risk. No single control, or combination of controls, removes risk entirely; layered controls (password, MFA, phishing-resistant methods for privileged access) each raise the cost and difficulty for an attacker, reducing risk to an acceptable, managed level rather than to zero. Against a highly resourced, persistent attacker, no configuration guarantees prevention — the realistic goal of any control is risk reduction, not risk elimination.
 
 ![MFA registration prompt on first sign-in](mfa-registration-prompt.png)
 
 ![MFA successfully registered — Microsoft Authenticator set as default sign-in method](mfa-registration-confirmed.png)
+### Self-Service Password Reset (SSPR)
 
-## Self-Service Password Reset (SSPR)
+**Business case:** Without SSPR, a user who forgets their password has to wait for helpdesk support. That creates avoidable downtime and support load. SSPR lets users verify their identity and reset their password themselves at any time.
 
-**Business case:** Without SSPR, a forgotten or locked-out password requires helpdesk involvement — a real problem for anyone working outside normal support hours (e.g., 2am), who would otherwise be completely blocked until the helpdesk reopens. SSPR solves this by letting users verify their own identity and reset their password themselves, at any time, without waiting for IT — reducing both user downtime and helpdesk ticket volume for what is typically one of the most common, repetitive support requests.
+**Security consideration:** SSPR is only as strong as the method used to verify identity. That is why I register MFA as part of the SSPR flow rather than treating it as a separate afterthought. A self-service reset is only safe if the verification method is strong enough.
 
 ![SSPR: Get back into your account, CAPTCHA verification step](sspr-captcha-verification.png)
 
