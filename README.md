@@ -21,13 +21,11 @@
 
 ### Password Hash Synchronization (PHS)
 
-**Business case:** Without hybrid identity, employees typically need separate credentials for on-premises Active Directory and cloud services such as Microsoft 365. This increases the number of passwords users must remember and the number of identities IT must manage. Password Hash Synchronization (PHS) reduces this complexity by synchronizing a secure hash of the user's on-premises Active Directory password to Microsoft Entra ID, allowing users to sign in to both on-premises and cloud resources using the same username and password, while cloud authentication is performed by Microsoft Entra ID
+**Business case:** Without hybrid identity, employees typically need separate credentials for on-premises Active Directory and cloud services such as Microsoft 365. This increases the number of passwords users must remember and the number of identities IT must manage. Password Hash Synchronization (PHS) reduces this complexity by synchronizing a secure hash of the user's on-premises Active Directory password to Microsoft Entra ID, allowing users to sign in to both on-premises and cloud resources using the same username and password, while cloud authentication is performed by Microsoft Entra ID.
 
-**What was built:** Configured Entra Connect to synchronise on-premises Active Directory with Entra ID, with Password Hash Synchronization enabled. This requires Entra Connect specifically — Password Hash Synchronization was enabled as part of the initial Entra Connect configuration wizard — not a separate step performed afterward, but a specific option selected during setup itself.
+**What was built:** Password Hash Synchronization is enabled by default in the Entra Connect wizard — it's ticked automatically when you set up the sync. I confirmed this myself later, when I went back in to switch the sign-in method over to Pass-Through Authentication instead, which showed me PHS had been the default option all along.
 
-**What was built:** I enabled Password Hash Synchronization during the Microsoft Entra Connect configuration wizard. This is part of the initial setup, not a separate later step.
-
-Caveat: In this lab, the on-premises domain does not match the tenant’s original sign-up domain, so synced users fall back to the tenant’s .onmicrosoft.com domain for sign-in. In a real enterprise deployment, the on-premises domain would normally be a verified domain in the tenant, giving a more consistent sign-in experience.
+**Caveat:** In this lab, the on-premises domain does not match the tenant's original sign-up domain, so synced users fall back to the tenant's .onmicrosoft.com domain for sign-in. In a real enterprise deployment, the on-premises domain would normally be a verified domain in the tenant, giving a more consistent sign-in experience.
 
 **Verification:** I confirmed this worked at three levels: the users synced into Microsoft Entra ID, I could sign in as a synced user using the same password set on-premises, and I tested that Reader-level access behaved as expected by allowing viewing but blocking VM creation. That negative test was the strongest proof that the permission boundary was being enforced correctly.
 
