@@ -3,7 +3,11 @@
 Business Problem: Most organisations still run on-prem Active Directory alongside cloud services like Microsoft Entra ID. On-prem AD is still widely used today for things like file shares and internal network resources, while businesses also want to use cloud apps and services. The problem is connecting those two properly and managing them together, rather than running them as two separate, disconnected systems. Without that, you end up with duplicate credentials, duplicate onboarding/offboarding processes, and access that can drift out of sync between the two environments.
 
 Solution Overview: The solution is one identity per user that works across both on-prem AD and the cloud, rather than having separate, disconnected identities in each place — whether that identity was originally created on-prem or in the cloud. I built this by deploying Active Directory Domain Services (AD DS) inside an Azure VM and synchronising it to Microsoft Entra ID using Microsoft Entra Connect.
+
+Scope Note: This lab currently covers hybrid identity between on-prem Active Directory and Microsoft Entra ID, built using Entra Connect for synchronisation, with Conditional Access, MFA, and PIM layered on top as access controls. This is an ongoing project alongside my SC-300 studies, so further areas — such as identity governance and access reviews — will be added as they're built out.
+
 ![Architecture Diagram](hybrid-lab-architecture.png)
+
 
 ## What I Built
 
