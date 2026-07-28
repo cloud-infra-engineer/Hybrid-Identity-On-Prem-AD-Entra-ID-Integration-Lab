@@ -41,17 +41,13 @@ Together, these three layers confirm Password Hash Synchronization works end-to-
 
 ### Password Writeback
 
-**Business case:** Without hybrid identity, employees typically need separate credentials for on-premises Active Directory and cloud services such as Microsoft 365. This increases the number of passwords users must remember and the number of user accounts IT must manage. Password Hash Synchronization (PHS) reduces this complexity by synchronizing a secure hash of the user's on-premises Active Directory password to Microsoft Entra ID. This enables users to sign in to both on-premises and cloud resources using the same username and password, while authentication for cloud resources is performed by Microsoft Entra ID.
+**Business case:** In a hybrid environment, if a user resets their password from the cloud side — either themselves or through SSPR — you need that change to actually make it back to on-prem AD, otherwise the two environments fall out of sync and the user ends up with different passwords in each place. Password Writeback solves this by pushing a cloud-side password reset back down to on-prem AD, keeping both environments aligned.
 
-**What was built:** I enabled password writeback through the Entra Connect configuration wizard and then enabled the related setting in the Microsoft Entra admin center under password reset integration.
+**What was built:** Enabled writeback through the Entra Connect configuration wizard's Optional Features step, then separately enabled the linked setting in the Entra admin center (Identity → Protection → Password reset → On-premises integration), which is needed for it to actually work with SSPR.
 
-**Verification:** I tested both states directly. When writeback was disabled, password reset failed as expected. Once enabled, the same reset completed successfully.
+**Verification:** Tested both states directly — with writeback disabled, a password reset failed with an authorisation error as expected. Once I enabled it, the same reset completed successfully.
 
-**Tested resilience point:** With PHS already handling authentication via a synced hash, stopping the on-premises AD VM entirely had no effect on sign-in for already-synced users — proving PHS-based authentication is genuinely independent of on-prem availability. Writeback, however, does depend on on-prem being reachable, since a cloud password change has nowhere to write back to if AD is offline.
-
-**What was built:** Enabled writeback through the Entra Connect configuration wizard's Optional Features step, then separately enabled the linked setting in the Entra admin center (Identity → Protection → Password reset → On-premises integration) required for it to take effect with SSPR.
-
-**Verification:** Confirmed the before/after behaviour directly: attempting a password reset while writeback was disabled failed with an authorisation error, consistent with the intended restriction. Once writeback was enabled, the same reset action succeeded, confirming the feature was correctly configured and functioning.
+**Tested resilience point:** With PHS already handling authentication via a synced hash, stopping the on-prem AD VM entirely had no effect on sign-in for already-synced users — proving PHS-based authentication is genuinely independent of on-prem availability. Writeback, though, does depend on on-prem being reachable, since a cloud password change has nowhere to write back to if AD is offline.
 
 Pass-Through Authentication (PTA)
 
