@@ -127,14 +127,13 @@ Operational trade-off: PTA allows organisations to keep password validation on-p
 
 ## Conditional Access
 
-**Business case:** Traditional authentication methods, such as passwords and multifactor authentication (MFA), apply the same authentication requirements to every sign-in, regardless of the level of risk. Conditional Access enables organisations to enforce access policies based on signals such as the user, device, location, application, and sign-in risk. This allows organisations to apply Zero Trust principles by verifying each access request based on its context rather than relying on static authentication requirements alone.
+**Business case:** Conditional Access matters because it gives you much finer control than MFA on its own. MFA just adds a second factor, but Conditional Access lets you decide *where* and *for whom* that applies — all users, just privileged accounts, specific locations, specific devices, whatever fits. For example, you could block sign-ins from countries you don't operate in, or require extra authentication specifically for privileged accounts on top of the baseline MFA everyone else has. Microsoft's own mandatory MFA for admin accounts is a good baseline, but it doesn't give you that same level of control — Conditional Access lets you actually tailor policies to the specific users, groups, or risk level you care about, rather than applying one blanket rule to everyone.
 
-**What a business typically needs to control:** At minimum, most organisations want to enforce MFA, restrict access by location, require stronger controls for privileged accounts, and block legacy authentication. That is the set of controls this lab is building toward.
+**What a business typically needs to control:** This really depends on the organisation's risk appetite and what it's actually protecting — a company handling health records or financial data is going to need tighter controls than one that isn't. A sensible approach is defense in depth, working from the inside out: start with what you can control in your own environment first — your own users, your own devices — before extending controls out to guests, external users, and customers. In terms of the basics, most organisations end up wanting some combination of: enforcing MFA, restricting access by location, applying stronger controls to privileged accounts, and blocking outdated/legacy authentication. This lab builds toward that same kind of baseline, but what you actually configure in a real environment should be shaped by the sensitivity of what you're protecting and how far out from your own environment you're extending control.
 
-**Policy 1 — Require MFA for all users:** I created a Conditional Access policy targeting all users except the break-glass accounts, scoped it to all resources, and required MFA as the grant control. I used report-only mode first, confirmed the policy with What If, then switched it on and verified the sign-in logs showed the policy applying correctly.
-**Policy 1 — Require MFA for all users**
+**Policy 1 — Require MFA for all users:** I created a Conditional Access policy targeting all users, with the two administrative break-glass accounts explicitly excluded to prevent lockout risk. Scoped to all resources, with a grant control requiring multifactor authentication (the general "Multifactor authentication" strength, not passwordless or phishing-resistant, since this is meant to be the organisation-wide baseline).
 
-**What was built:** Created a Conditional Access policy targeting all users, with the two administrative break-glass accounts explicitly excluded to prevent lockout risk. Scoped to all resources, with a grant control requiring multifactor authentication (the general "Multifactor authentication" strength, not passwordless or phishing-resistant, since this is meant to be the organisation-wide baseline). The policy was first created and saved in Report-only mode.
+**What was built:** I created and saved the policy in Report-only mode first, confirmed it with What If, then switched it on and verified the sign-in logs showed the policy applying correctly.
 
 ![Conditional Access policy created in Report-only mode](conditional-access-policy-creation-report-only.png)
 
@@ -150,11 +149,10 @@ Signed in as this new test user with the policy active — the sign-in correctly
 
 ![Test user account signing into the portal](signin-portal.png)
 
+You can check whether a Conditional Access policy is actually being enforced by looking at the sign-in logs — specifically the Conditional Access tab, which shows success or failure for that policy directly. That's what actually confirms whether the policy itself is doing the work, separately from whether MFA happened for some other reason. 
 
-Checked the sign-in log's Conditional Access tab directly for this event, which explicitly confirmed the policy had applied and MFA had been enforced through this Conditional Access policy specifically — not Security Defaults (already disabled) and not Microsoft's separate mandatory MFA enforcement for privileged accounts (this was a standard, non-admin user).
+In this case, Security Defaults was already disabled, and Microsoft's own mandatory MFA only applies to admin accounts, not standard users — so checking the sign-in log was the way to actually confirm it was this Conditional Access policy specifically enforcing MFA for a standard user, not something else.
 
-
-This is the way to actually confirm a Conditional Access policy is doing what it's supposed to, rather than just assuming it's working because MFA happened — since there are multiple separate ways MFA can get enforced in Entra ID, and only checking the policy's own status in the sign-in log tells you for certain it was this policy, specifically, that did it.
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
@@ -171,8 +169,7 @@ An Eligible assignment means the user is allowed to activate the role, but the r
 **Fix:**
 I removed both eligible assignments and reassigned them as Active. Once that was done, the access took effect immediately, and I confirmed it by signing in as L1 and successfully seeing the existing VM.
 
-**Lesson learned:**
-This was a useful reminder that in PIM, having a role assignment does not always mean having active access. The distinction between Eligible and Active is important, because access has to be deliberately granted or activated before it is actually usable.
+**Lesson learned:** Having a role assigned in PIM doesn't mean you actually have access — Eligible just means you're allowed to activate it. You still have to activate it before it's actually usable.
 
 ### 2) SSPR failed with password reset not enabled
 
@@ -188,8 +185,7 @@ The user simply wasn't correctly included in the password reset configuration.
 **Fix:**
 I enabled password reset for the user properly and then tried again.
 
-**Lesson learned:**
-This showed me that SSPR is very dependent on the target configuration being correct. If the user or group targeting is not set properly, the feature will fail even if everything else looks fine.
+**Lesson learned:** SSPR only works if the target user or group is actually configured correctly — if that's wrong, nothing else matters, it just fails.
 
 ### 3) MFA verification code not received during SSPR
 
@@ -205,8 +201,7 @@ The precise root cause was not confirmed at the time. One likely explanation was
 **Fix:**
 I deleted the existing authenticator app registration completely and then re-registered from scratch. After that, the push notifications worked and the password reset completed successfully.
 
-**Lesson learned:**
-Sometimes the quickest fix is to remove the existing registration and start again cleanly. It also reinforced the importance of checking whether the identity method registration itself is healthy, not just whether it appears to exist.
+**Lesson learned:** Sometimes the quickest fix really is just deleting the registration and starting again clean. It also taught me to check whether a registration is actually healthy, not just whether it exists.
 
 ### 4) Root cause of SSPR failure identified through re-testing
 
@@ -222,8 +217,7 @@ Because I changed both variables at once, I can't say with certainty which one w
 **Fix:**
 I set the authentication method target properly and completed MFA and SSPR registration in one continuous process.
 
-**Lesson learned:**
-This was a good lesson in not trusting a top-level summary view alone. It also showed me that when testing identity workflows, the order of registration can matter, and that clean re-registration can resolve issues that are hard to diagnose from symptoms alone.
+**Lesson learned:** I changed two things at once, so I can't say for sure which one actually fixed it. Good reminder not to trust a top-level summary alone, and that the order you register things in can genuinely matter.
 
 ### 5) Sign-in failure mistaken for wrong password
 
@@ -239,9 +233,7 @@ The real issue was not the password or the account state — it was missing MFA 
 **Fix:**
 I signed in again, which correctly triggered the MFA registration flow, and the issue was resolved.
 
-**Lesson learned:**
-This reinforced the value of sign-in logs. The error message itself was not enough to explain the failure, but the logs showed the actual reason quickly. In IAM, you have to work from evidence, not assumptions.
-[Placeholder — to be completed once Conditional Access/MFA/PIM sections are built out.]
+**Lesson learned:** The sign-in logs told me more than the error message did. In IAM, you have to go by the evidence, not just assume.
 
 ## References
 
