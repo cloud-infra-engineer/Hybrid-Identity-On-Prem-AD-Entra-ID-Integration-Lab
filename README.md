@@ -15,7 +15,7 @@
 
 **Entra Connect Configuration:** I downloaded Microsoft Entra Connect from the Microsoft Download Center onto the domain controller VM and configured synchronisation through the Entra Connect wizard. After configuration completed, I verified in Microsoft Entra ID that the users had synced successfully.
 
-**Design consideration — Entra Connect vs. Cloud Sync:** I used Microsoft Entra Connect in this lab because it supports sign-in and synchronisation scenarios that are more fully featured than Cloud Sync in certain areas. Cloud Sync is lighter-weight and better suited to simpler or highly available deployments, while Entra Connect is still the better fit when you need the broader set of hybrid identity capabilities this lab is demonstrating. The choice is a trade-off, not a universal best answer, and depends on the organisation's requirements.
+**Design consideration — Entra Connect vs. Cloud Sync:** I went with Entra Connect for this lab because on-prem AD was the main focus, and Entra Connect has a broader feature set for that kind of setup. If most of an organisation's stuff was already in the cloud, Cloud Sync would probably make more sense instead — it's lighter weight. Basically it depends on where the bulk of your infrastructure actually sits — on-prem or cloud — and each option has its own pros and cons depending on that.
 
 **Sync Verification:** I confirmed that users created on-premises in AD DS appeared automatically in Microsoft Entra ID without manual cloud creation.
 
