@@ -155,9 +155,19 @@ In this case, Security Defaults was already disabled, and Microsoft's own mandat
 
 ## Identity Governance
 
-**Business Problem:** As a business grows, it ends up with thousands of employees, all doing different things, all needing different authentication and authorization. The problem isn't just setting up access when someone joins — it's knowing, at any point later, whether that access is still correct. An employee could have been in the company five years, with permissions granted at various points along the way. How do you know they're still only authorised for what they should be? How do you know they still have access to the right resources, and haven't accumulated access to things they shouldn't? Controls put in place two years ago don't mean anything on their own if nobody's checking whether they're still working, or whether that person's access still matches what their current role actually needs.
+**Business Problem:** As a business grows, it ends up with thousands of employees, all doing different things, all needing different authentication and authorization. The problem isn't just setting up access when someone joins — it's knowing, at any point later, whether that access is still correct. 
+
+An employee could have been in the company five years, with permissions granted at various points along the way. How do you know they're still only authorised for what they should be? How do you know they still have access to the right resources, and haven't accumulated access to things they shouldn't? Controls put in place two years ago don't mean anything on their own if nobody's checking whether they're still working, or whether that person's access still matches what their current role actually needs.
 
 **Solution Overview:** Identity Governance is the set of tools and processes — like access packages, access reviews, and PIM — that let a business actually manage and continuously verify this, rather than just setting access up once and assuming it stays correct.
+
+
+## Privileged Identity Management (PIM)
+
+**Business case:** One of the tools Entra provides for identity governance is Privileged Identity Management (PIM) — a service that lets you manage, control, and monitor access to Entra, Azure, and other Microsoft services. The problem it solves: if someone has a privileged role, like Global Administrator or User Administrator, you don't want them carrying that access all day, every day, if they only actually need it for specific tasks now and then. Standing 24/7 privileged access is a bigger risk than it needs to be.
+
+**How it works:** With PIM, the user is set up as eligible for the role rather than having it permanently active. When they actually need to do a privileged task, they go in, activate the role, and give a business justification for why they need it right now. Once activated, they have that access for a set, limited amount of time. When that time runs out, the access is automatically revoked — if they need more time or need to do something else later, they have to activate it again.
+
 
 ## Troubleshooting & Problems I Hit
 
