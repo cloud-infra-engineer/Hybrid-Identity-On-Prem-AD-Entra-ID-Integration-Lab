@@ -185,6 +185,10 @@ On the Roles page, I searched for the Virtual Machine Contributor role.
 
 ## Troubleshooting & Problems I Hit
 
+I assigned the Virtual Machine Contributor role to a user.
+
+![Assign role to user](assign-role-to-user.png)
+
 ### 1) Reader roles assigned, but user had no access
 
 **Problem:**
