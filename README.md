@@ -173,7 +173,7 @@ An employee could have been in the company five years, with permissions granted 
 **Azure resources**
 Navigated to Identity Governance → Privileged Identity Management → Azure resources.
 
-![Azure resources](Azure-Resources.png)
+![Azure resources](azure-resources.png)
 
 ## Troubleshooting & Problems I Hit
 
