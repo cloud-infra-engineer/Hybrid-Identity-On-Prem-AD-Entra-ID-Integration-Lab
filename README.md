@@ -168,6 +168,12 @@ An employee could have been in the company five years, with permissions granted 
 
 **How it works:** With PIM, the user is set up as eligible for the role rather than having it permanently active. When they actually need to do a privileged task, they go in, activate the role, and give a business justification for why they need it right now. Once activated, they have that access for a set, limited amount of time. When that time runs out, the access is automatically revoked — if they need more time or need to do something else later, they have to activate it again.
 
+**What was built — Azure resource (Virtual Machine Contributor):** In the Entra portal, under Identity Governance → Privileged Identity Management → Azure resources, I scoped this to the resource group level, then went into Roles (which manages Azure roles specifically, separate from Entra roles). I assigned the **Virtual Machine Contributor** role to the **Compute Admin** user, setting the assignment type to **Eligible** rather than Active, with the duration left at the maximum allowed (one year).
+
+**Azure resources**
+Navigated to Identity Governance → Privileged Identity Management → Azure resources.
+
+![Azure resources](Azure-Resources.png)
 
 ## Troubleshooting & Problems I Hit
 
