@@ -209,6 +209,10 @@ Clicking Activate on the Virtual Machine Contributor role brought up an activati
 
 ![Role activation](role-activation.png)
 
+Once activated, access is granted for whatever duration was configured — thirty minutes, an hour, or whatever was set. When that time expires, if more time is needed, clicking Extend allows requesting additional time, again requiring justification if that's configured. Once the session ends, access is automatically revoked and the user reverts back to their normal, unprivileged state.
+
+**Troubleshooting**
+
 ### 1) Reader roles assigned, but user had no access
 
 **Problem:**
