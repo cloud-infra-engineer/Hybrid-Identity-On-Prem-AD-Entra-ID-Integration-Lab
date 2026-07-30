@@ -193,6 +193,10 @@ Under the assignment type settings, I set this to Eligible.
 
 ![Assign PIM](assign-pim.png)
 
+After setting the assignment type to Eligible, I moved into the Settings tab and selected the Virtual Machine Contributor role I'd just assigned. From there, clicking Edit gives access to more granular control — maximum activation duration, what's required to activate (justification, ticket information, approval), and who approves requests if approval is required.
+
+![Role setting details](role-setting-details.png)
+
 ### 1) Reader roles assigned, but user had no access
 
 **Problem:**
