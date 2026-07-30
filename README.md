@@ -205,6 +205,10 @@ Once signed in, I searched for PIM, went to Roles → My roles, and selected the
 
 ![PIM role activate](pim-role.png)
 
+Clicking Activate on the Virtual Machine Contributor role brought up an activation prompt, requiring me to enter a justification for the request. Depending on what was configured in the role settings, this stage might also require MFA or other verification methods. Once submitted, the activation goes through several stages of confirmation before access to the role is actually granted.
+
+![Role activation](role-activation.png)
+
 ### 1) Reader roles assigned, but user had no access
 
 **Problem:**
