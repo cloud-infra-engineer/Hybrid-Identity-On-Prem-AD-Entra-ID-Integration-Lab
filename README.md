@@ -179,6 +179,10 @@ I scoped this to the resource group level, then went into Roles, which manages A
 
 ![Resource scope](resource-scope.png)
 
+On the Roles page, I searched for the Virtual Machine Contributor role.
+
+![Virtual machine contributor role](virtual-machine-contributor-role.png)
+
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
