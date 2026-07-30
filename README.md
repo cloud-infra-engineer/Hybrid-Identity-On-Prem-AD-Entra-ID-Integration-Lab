@@ -189,6 +189,10 @@ I assigned the Virtual Machine Contributor role to a user.
 
 ![Assign role to user](assign-role-to-user.png)
 
+Under the assignment type settings, I set this to Eligible.
+
+![Assign PIM](assign-pim.png)
+
 ### 1) Reader roles assigned, but user had no access
 
 **Problem:**
