@@ -175,6 +175,10 @@ Navigated to Identity Governance → Privileged Identity Management → Azure re
 
 ![Azure resources](azure-resources.png)
 
+I scoped this to the resource group level, then went into Roles, which manages Azure roles specifically, separate from Entra roles.
+
+![Resource scope](resource-scope.png)
+
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
