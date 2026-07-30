@@ -203,7 +203,7 @@ I then signed in to the Azure portal as the Compute Admin user to check what rol
 
 Once signed in, I searched for PIM, went to Roles → My roles, and selected the scope I'd originally configured — Azure resources. Under Eligible assignments, the Virtual Machine Contributor role appeared, ready to activate, with Activate and Extend options available.
 
-![PIM role](pin-roll.png)
+![PIM role activate](pim-roll.png)
 
 ### 1) Reader roles assigned, but user had no access
 
