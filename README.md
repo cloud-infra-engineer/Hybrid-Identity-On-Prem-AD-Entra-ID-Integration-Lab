@@ -197,6 +197,10 @@ After setting the assignment type to Eligible, I moved into the Settings tab and
 
 ![Role setting details](role-setting-details.png)
 
+I then signed in to the Azure portal as the Compute Admin user to check what roles had been assigned.
+
+![User sign in](user-sign-in.png)
+
 ### 1) Reader roles assigned, but user had no access
 
 **Problem:**
