@@ -170,8 +170,13 @@ An employee could have been in the company five years, with permissions granted 
 
 "In general, configuring PIM follows three steps: selecting the scope (Entra roles, Azure resources, or Groups), assigning the role (identity, Eligible or Active, duration), and configuring the role's settings (activation requirements, approval, notifications). The examples below show this applied in practice."
 
-**What was built — Azure resource (Virtual Machine Contributor):** In the Entra portal, under Identity Governance → Privileged Identity Management → Azure resources, I scoped this to the resource group level, then went into Roles (which manages Azure roles specifically, separate from Entra roles). I assigned the **Virtual Machine Contributor** role to the **Compute Admin** user, setting the assignment type to **Eligible** rather than Active, with the duration left at the maximum allowed (one year).
+**What was built — Azure resource (Virtual Machine Contributor)**
 
+In Privileged Identity Management, I selected Azure resources, scoped to the relevant resource, then went into Roles and searched for **Virtual Machine Contributor**. I added an assignment for the **Compute Admin** user, setting the type to **Eligible** rather than Active — Eligible means the role is granted but not active until the user deliberately activates it, whereas Active would make it permanent immediately, defeating the purpose of PIM. Duration was set to the maximum allowed (one year).
+
+I then configured the role's settings across the Activation, Assignment, and Notification tabs, covering things like activation duration, justification requirements, and expiry.
+
+To verify, I signed in as Compute Admin, went to PIM → My roles → Azure resources, and activated the Eligible assignment. Once activated, access was granted for the configured time window; if more time was needed, it could be extended from the same screen, and once the window expired, access was automatically revoked.
 **Azure resources**
 Navigated to Identity Governance → Privileged Identity Management → Azure resources.
 
