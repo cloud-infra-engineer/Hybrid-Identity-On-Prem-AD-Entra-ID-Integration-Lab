@@ -217,6 +217,12 @@ Clicking Activate on the Virtual Machine Contributor role brought up an activati
 
 Once activated, access is granted for whatever duration was configured — thirty minutes, an hour, or whatever was set. When that time expires, if more time is needed, clicking Extend allows requesting additional time, again requiring justification if that's configured. Once the session ends, access is automatically revoked and the user reverts back to their normal, unprivileged state.
 
+**What was built — Entra roles (Global Administrator and Security Reader)**
+
+Configuration followed the same underlying process as the Azure resource example above, just approached from the Roles view directly rather than starting from a resource scope. I set up two Entra roles as Eligible: one configured to require the Conditional Access Authentication Context (the same step-up MFA mechanism built earlier), and the other configured to require **Approval** — meaning activation doesn't complete immediately, but instead sends a request that a designated approver (a Global Administrator, in this case) has to review and approve before the role actually activates.
+
+To test this, I signed in as the eligible user and requested activation, then signed in separately as Global Administrator to approve the pending request — confirming the approval workflow genuinely gates activation rather than just logging a request.
+
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
