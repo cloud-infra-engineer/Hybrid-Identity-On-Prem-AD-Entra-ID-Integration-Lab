@@ -223,6 +223,12 @@ Configuration followed the same underlying process as the Azure resource example
 
 To test this, I signed in as the eligible user and requested activation, then signed in separately as Global Administrator to approve the pending request — confirming the approval workflow genuinely gates activation rather than just logging a request.
 
+**Design consideration — approval overhead and role scoping**
+
+Requiring approval is a genuinely useful extra control, but it isn't something to apply to every role — it introduces real admin overhead, since someone has to be available to review and approve each request. It makes sense for higher-risk roles, but adding it everywhere would create unnecessary friction and slow down routine work.
+
+The more important principle when assigning any PIM role is matching the role to the actual job being done, rather than defaulting to something broad like Global Administrator. If someone only needs to reset passwords, Password Administrator or User Administrator is the right fit — not Global Administrator, which carries far more privilege than the task requires. Similarly, someone who only needs visibility into security data should get Security Reader, not a role that grants far more than they need. Giving out excess privilege "just in case" defeats the purpose of PIM's least-privilege model, regardless of how well the activation process itself
+
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
