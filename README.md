@@ -227,6 +227,12 @@ To test this, I signed in as the eligible user and requested activation, then si
 
 Requiring approval is a genuinely useful extra control, but it isn't something to apply to every role — it introduces real admin overhead, since someone has to be available to review and approve each request. It makes sense for higher-risk roles, but adding it everywhere would create unnecessary friction and slow down routine work.
 
+**What was built — Approval workflow (Global Administrator)**
+
+For roles configured to require approval, whoever is responsible for approving PIM requests goes to Identity Governance → Privileged Identity Management → Microsoft Entra roles → Tasks → **Approve requests**. This screen lists all pending activation requests for roles that need approval. Ticking the relevant request and clicking Approve brings up an approval form, where the approver fills in the details as needed and submits. Once approved, the requesting user can then go and use the role — the approval itself is what completes the activation, rather than the user needing to separately activate again afterward.
+
+![Approver workflow](approver-workflow.png)
+
 The more important principle when assigning any PIM role is matching the role to the actual job being done, rather than defaulting to something broad like Global Administrator. If someone only needs to reset passwords, Password Administrator or User Administrator is the right fit — not Global Administrator, which carries far more privilege than the task requires. Similarly, someone who only needs visibility into security data should get Security Reader, not a role that grants far more than they need. Giving out excess privilege "just in case" defeats the purpose of PIM's least-privilege model, regardless of how well the activation process itself
 
 ## Troubleshooting & Problems I Hit
