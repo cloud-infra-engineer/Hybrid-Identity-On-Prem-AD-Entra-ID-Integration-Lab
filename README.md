@@ -267,6 +267,25 @@ The more important principle when assigning any PIM role is matching the role to
 
 **Note on documentation currency:** the "Discover groups" workflow above is Microsoft's documented, legacy approach. At the time of writing, Microsoft had rolled out a newer default Groups experience in PIM with no equivalent documentation yet available — the legacy view had to be used specifically to complete this configuration, since the new screen's equivalent action couldn't be located or confirmed.
 
+## PIM Governance Matrix — A Standardised Approach to Role Configuration
+
+**Business case:** Without a documented standard, every PIM role ends up configured slightly differently, based on whichever admin happened to set it up and their own judgement at the time. One admin might configure Global Administrator with an 8-hour activation window and no approval; another might configure it correctly with a 1-hour window and dual approval. That inconsistency is a genuine governance risk — an auditor asking "what's your organisation's policy for privileged access" deserves one clear, consistent answer, not "it depends who configured it." A PIM governance matrix solves this by defining, in advance, exactly what settings apply to each role, so every future configuration follows the same standard rather than being decided ad hoc.
+
+**Example matrix, based on realistic enterprise roles:**
+
+| Role | Assignment Type | Activation Duration | MFA on Activation | Approval Required | Approver(s) | Justification Required |
+|---|---|---|---|---|---|---|
+| Global Administrator | Eligible only | 1 hour | Yes (phishing-resistant) | Yes | 2 other Global Admins | Yes |
+| Privileged Role Administrator | Eligible only | 2 hours | Yes | Yes | Global Admin | Yes |
+| User Administrator | Eligible only | 4 hours | Yes | No | — | Yes |
+| Helpdesk Administrator | Eligible only | 8 hours | Yes | No | — | Yes |
+| Exchange Administrator | Eligible only | 4 hours | Yes | No | — | Yes |
+| Reader (subscription-wide) | Active permitted | N/A (standing) | No | No | — | No |
+
+**Why the settings differ by role, not just by preference:** the highest-consequence role (Global Administrator) gets the shortest activation window and the strictest verification, since the potential damage from a compromised or misused session is greatest. A read-only role like Reader carries little risk even if left standing, so the overhead of activation and MFA isn't proportionate to the risk. Justification is required even for lower-risk roles, since an audit trail of who requested access and why has value regardless of whether the role needed formal approval to grant.
+
+**The point of this matrix:** it isn't just a record of settings — it's the standard every future PIM configuration in the organisation should be checked against, so privileged access decisions are made consistently, by policy, rather than inconsistently, by whichever admin happens to be configuring it that day.
+
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
