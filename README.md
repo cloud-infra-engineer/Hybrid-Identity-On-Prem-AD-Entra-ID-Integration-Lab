@@ -255,7 +255,7 @@ The more important principle when assigning any PIM role is matching the role to
 
 2. Brought the group under PIM management via Identity Governance → Privileged Identity Management → Groups. The new default screen didn't show a working "Discover groups" option, so switched to the legacy experience via the banner link. From there: Discover groups → selected the created group → Manage groups → confirmed.
 
-![Discover group in PIM](discover-group.png)
+![Discover group in PIM](discover-groups.png)
 
 3. The group now appears in PIM's list of managed groups. Edited the role settings separately for Member and Owner — Eligible vs. Active, maximum duration, authentication requirements — using the same three-tab structure (Activation, Assignment, Notification) already used for Azure Resource roles and Entra ID roles.
 
