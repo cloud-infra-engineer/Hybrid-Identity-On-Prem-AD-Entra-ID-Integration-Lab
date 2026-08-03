@@ -235,6 +235,38 @@ For roles configured to require approval, whoever is responsible for approving P
 
 The more important principle when assigning any PIM role is matching the role to the actual job being done, rather than defaulting to something broad like Global Administrator. If someone only needs to reset passwords, Password Administrator or User Administrator is the right fit — not Global Administrator, which carries far more privilege than the task requires. Similarly, someone who only needs visibility into security data should get Security Reader, not a role that grants far more than they need. Giving out excess privilege "just in case" defeats the purpose of PIM's least-privilege model, regardless of how well the activation process itself
 
+## Privileged Identity Management (PIM) for Groups
+
+**Business case:** Rather than assigning a privileged role directly to each individual who needs it, a role-assignable group can hold the actual role instead — as a permanent, always-on assignment. Individual people never hold the role directly, not even in a temporary "eligible" state tied to the role itself. Instead, each person gets eligible *membership* in the group, and it's only through that membership that the role's access ever reaches them, and only for as long as they've actually activated it.
+
+**Why use a group instead of assigning the role to each person individually:**
+
+1. **Scale and consistency** — rather than managing "is this person eligible for Role A, are they eligible for Role B" separately, for every person and every role, you manage one thing: who's eligible to be a member of this one group. Add or remove someone from the group, and their access changes automatically, without touching individual role assignments one at a time.
+
+2. **A genuine security protection, not just convenience** — a role-assignable group can only be managed by a Global Administrator, a Privileged Role Administrator, or the group's own Owner. Nobody else — not even roles like Helpdesk Administrator or User Administrator, which could normally manage an ordinary group. This closes a real privilege-escalation risk: without this protection, a lower-privileged admin could potentially add themselves into a group that happens to hold a powerful role, effectively promoting themselves sideways. This protection only exists for role-assignable groups specifically — not ordinary security groups.
+
+**A fixed constraint worth knowing:** role-assignable groups must be cloud-only, static security groups. They can't be dynamic, and they can't be synced down from on-premises AD.
+
+**What was built:**
+
+1. Created the group — set an Owner, ticked "Microsoft Entra roles can be assigned to the group" (this has to be done at creation — it can't be added afterward), and assigned the desired Entra role to the group at that same step.
+
+![New group creation](new-group.png)
+
+2. Brought the group under PIM management via Identity Governance → Privileged Identity Management → Groups. The new default screen didn't show a working "Discover groups" option, so switched to the legacy experience via the banner link. From there: Discover groups → selected the created group → Manage groups → confirmed.
+
+![Discover group in PIM](discover-group.png)
+
+3. The group now appears in PIM's list of managed groups. Edited the role settings separately for Member and Owner — Eligible vs. Active, maximum duration, authentication requirements — using the same three-tab structure (Activation, Assignment, Notification) already used for Azure Resource roles and Entra ID roles.
+
+![Manage roles for the group](manage-roles.png)
+
+4. Under Roles, there are two entries — Member and Owner. Added assignments for each, configuring who can be eligible or active as Owner, and who can be eligible or active as Member.
+
+![Eligible assignments for the group](eligible-assignments.png)
+
+**Note on documentation currency:** the "Discover groups" workflow above is Microsoft's documented, legacy approach. At the time of writing, Microsoft had rolled out a newer default Groups experience in PIM with no equivalent documentation yet available — the legacy view had to be used specifically to complete this configuration, since the new screen's equivalent action couldn't be located or confirmed.
+
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
