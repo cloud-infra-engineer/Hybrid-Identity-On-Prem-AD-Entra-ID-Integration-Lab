@@ -286,6 +286,18 @@ The more important principle when assigning any PIM role is matching the role to
 
 **The point of this matrix:** it isn't just a record of settings — it's the standard every future PIM configuration in the organisation should be checked against, so privileged access decisions are made consistently, by policy, rather than inconsistently, by whichever admin happens to be configuring it that day.
 
+## Alerts
+
+**Business case:** In a large enterprise environment, there's a huge amount happening at any given time — roles being assigned and unassigned, privilege creep building up quietly, identities joining, moving, and leaving constantly. It's genuinely not possible for a person to manually track all of this activity across the environment in real time. What's needed is a way to get a snapshot of what's actually happening — not by watching everything constantly, but by having the system flag specific, defined conditions automatically, so a human only needs to step in when something's actually worth looking at.
+
+**Solution:** PIM alerts solve this by monitoring the environment automatically and flagging specific, defined conditions as they happen — things like too many Global Administrators, roles being assigned outside of PIM, eligible administrators not activating their roles, or potential stale accounts sitting in a privileged role. An analyst can configure these alerts once, then rely on the dashboard to surface what's actually happening across the environment, rather than manually checking everything themselves.
+
+![Entra alerts dashboard](entra-alerts-page.png)
+
+What alerts give you is the *what* — a factual, real-time signal that something worth investigating has occurred. They don't tell you the *why*. That's where the investigation continues: an alert is the trigger that leads to a targeted access review, which is the mechanism for actually getting to the reason behind what the alert flagged.
+
+**Business value:** Alerts reduce attack surface by surfacing potential gaps quickly, rather than leaving them to accumulate unnoticed until an audit or incident forces the question. They also reduce overhead — analysts don't need to manually search the environment for problems, since relevant conditions are already surfaced directly on the dashboard. This lets an analyst quickly assess what's relevant, raise a targeted access review where needed, and remediate the underlying issue — reducing attack surface and improving overall security posture, without the manual effort of finding these problems from scratch.
+
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
