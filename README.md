@@ -321,6 +321,21 @@ Automating this process through Entitlement Management reduces overheads and adm
 - Automates the access workflow, reducing friction and administrative overhead.
 - Increases productivity, since nobody has to stop and wait for manual approval before getting the access they need.
 
+## Access Lifecycle Diagram
+
+![Entitlement management access lifecycle](entitlement_management_lifecycle.png)
+
+### Pros (of using Entitlement Management)
+
+- Automates the access workflow, reducing friction and administrative overhead.
+- Increases productivity, since nobody has to stop and wait for manual approval before getting the access they need.
+
+### Cons (of using Entitlement Management)
+
+- Not necessary for smaller businesses with fewer employees — the overhead of manual provisioning may not justify implementing it.
+- Many companies don't use Entitlement Management, relying on PIM instead.
+- Requires a Microsoft Entra ID Governance (or Entra Suite) subscription, with some capabilities available under Entra ID P2 — carrying a cost implication for smaller organisations.
+
 ### Cons (of using Entitlement Management)
 
 - Not necessary for smaller businesses with fewer employees — the overhead of manual provisioning may not justify implementing it.
