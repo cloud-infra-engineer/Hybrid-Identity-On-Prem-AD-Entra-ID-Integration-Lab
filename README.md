@@ -298,6 +298,35 @@ What alerts give you is the *what* — a factual, real-time signal that somethin
 
 **Business value:** Alerts reduce attack surface by surfacing potential gaps quickly, rather than leaving them to accumulate unnoticed until an audit or incident forces the question. They also reduce overhead — analysts don't need to manually search the environment for problems, since relevant conditions are already surfaced directly on the dashboard. This lets an analyst quickly assess what's relevant, raise a targeted access review where needed, and remediate the underlying issue — reducing attack surface and improving overall security posture, without the manual effort of finding these problems from scratch.
 
+# Entitlement Management
+
+## Business Problem: Manual Access Provisioning at Enterprise Scale
+
+In a large enterprise with many employees, people are constantly joining, moving between roles, and leaving. When someone joins, they're typically granted a baseline of resources automatically — Microsoft 365, Teams, Outlook, email — since most employees need these to do their day-to-day work. Beyond that baseline, further access is usually granted based on department and role.
+
+The problem arises when someone needs access to a resource outside their normal baseline — something required for a specific task, not an ongoing part of their role. One way to handle this is manually: the employee asks someone for access, and that person grants it. For smaller organisations, this manual process may be perfectly workable.
+
+## Solution
+
+The solution to this business problem is implementing a feature from Identity Governance called Entitlement Management. When an employee is onboarded, they're granted access to the baseline resources they need. When they later require additional access to complete a specific task, they can go into the portal, request and provision that access, use the resource, and then step away — rather than holding standing access they don't need around the clock. They request access, complete the task, and the access doesn't remain indefinitely.
+
+## Business Value
+
+Automating this process through Entitlement Management reduces overheads and administrative burden. It removes the delay caused by employees having to request access and wait for manual approval — a process that slows down productivity.
+
+## Pros and Cons
+
+### Pros (of using Entitlement Management)
+
+- Automates the access workflow, reducing friction and administrative overhead.
+- Increases productivity, since nobody has to stop and wait for manual approval before getting the access they need.
+
+### Cons (of using Entitlement Management)
+
+- Not necessary for smaller businesses with fewer employees — the overhead of manual provisioning may not justify implementing it.
+- Many companies don't use Entitlement Management, relying on PIM instead.
+- Requires a Microsoft Entra ID Governance (or Entra Suite) subscription, with some capabilities available under Entra ID P2 — carrying a cost implication for smaller organisations.
+
 ## Troubleshooting & Problems I Hit
 
 ### 1) Reader roles assigned, but user had no access
